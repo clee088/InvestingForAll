@@ -86,24 +86,6 @@ struct ContentView_Previews: PreviewProvider {
 	}
 }
 
-//MARK: Views
-
-//struct OverviewView: View {
-//	
-//	var width: CGFloat?
-//	var height: CGFloat?
-//	
-//	var body: some View {
-//		ZStack {
-//			ScrollView(.vertical) {
-//				horizontalCardView(title: "Sectors", contentName: "Consumer Discretionary", contentPerformance: -5.19 , width: self.width, height: self.height, color: Color("Pink"))
-//				
-//				horizontalCardView(title: "Indices", contentName: "Consumer Discretionary", contentPerformance: -5.19 , width: self.width, height: self.height, color: Color("Light Blue"))
-//			}
-//		}
-//	}
-//}
-
 //MARK: Sub-views
 
 struct customTabView: View {

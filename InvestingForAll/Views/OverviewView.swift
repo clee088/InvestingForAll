@@ -36,10 +36,12 @@ struct OverviewView: View {
 	
 	var body: some View {
 		ZStack {
-			ScrollView(.vertical) {
+			ScrollView() {
+				
 				horizontalCardView(title: "Sectors", width: self.width, height: self.height, color: Color("Pink"), symbols: $sectorETFS)
 				
 				horizontalCardView(title: "Indices", width: self.width, height: self.height, color: Color("Light Blue"), symbols: $indices)
+				
 			}
 		}
 	}
@@ -47,7 +49,6 @@ struct OverviewView: View {
 
 struct OverviewView_Previews: PreviewProvider {
 	static var previews: some View {
-		
 		
 		GeometryReader { geometry in
 			OverviewView(width: geometry.size.width * 0.4, height: geometry.size.height * 0.2)
@@ -73,6 +74,7 @@ struct horizontalCardView: View {
 		
 		return ZStack {
 			VStack {
+				
 				HStack {
 					Text(title)
 						.font(.system(size: 20))
@@ -81,12 +83,21 @@ struct horizontalCardView: View {
 					Spacer()
 					
 				}
+				.padding(.leading)
 				
 				ScrollView(.horizontal) {
-					HStack(spacing: 10.0) {
+					HStack(spacing: 0) {
 						ForEach(0..<sortedSymbols.count) { item in
 							
-							HCardView(title: symbolName[item], ticker: symbolTicker[item], quote: QuoteModel(symbol: symbolTicker[item]), width: self.width, height: self.height, color: self.color)
+							VStack {
+								
+								Spacer()
+								
+								HCardView(title: symbolName[item], ticker: symbolTicker[item], quote: QuoteModel(symbol: symbolTicker[item]), width: self.width, height: self.height, color: self.color)
+								
+								Spacer()
+							}
+							
 						}
 					}
 					
@@ -94,81 +105,88 @@ struct horizontalCardView: View {
 				
 			}
 		}
-		.padding(.leading)
+		
 	}
 }
 
 struct HCardView: View {
-
+	
 	var title: String
 	var ticker: String
-
+	
 	@ObservedObject var quote: QuoteModel
 	
 	var width: CGFloat?
 	var height: CGFloat?
 	var color: Color
-
+	
 	var body: some View {
 		
-		let percentage: Double? = ((self.quote.quoteResult?.c ?? 0) - (self.quote.quoteResult?.pc ?? 0)) / (self.quote.quoteResult?.pc ?? 0)
+		let percentage: Double = ((self.quote.quoteResult?.c ?? 0) - (self.quote.quoteResult?.pc ?? 0)) / (self.quote.quoteResult?.pc ?? 0)
 		
 		return ZStack {
-
+			
 			VStack {
 				HStack {
 					Text(title)
 						.font(.headline)
-
+						.lineLimit(nil)
+						.multilineTextAlignment(.leading)
+					
 					Spacer()
 				}
+				
 				
 				HStack {
 					Text(ticker)
 						.font(.subheadline)
-
+					
 					Spacer()
 				}
-
+				
 				Spacer()
-
+				
 				HStack {
 					
-					if (percentage ?? 0) > 0 {
+					
+					if percentage > 0 {
 						Image(systemName: "arrowtriangle.up.circle")
-							.foregroundColor(Color.green)
+							.foregroundColor(Color("Green"))
 							.aspectRatio(contentMode: .fit)
 							.imageScale(.large)
 					}
-					if (percentage ?? 0) < 0 {
+					if percentage < 0 {
 						Image(systemName: "arrowtriangle.down.circle")
-							.foregroundColor(Color.red)
+							.foregroundColor(Color("Red"))
 							.aspectRatio(contentMode: .fit)
 							.imageScale(.large)
 					}
-					else {
+					if percentage == 0 {
 						Image(systemName: "arrowtriangle.right.circle")
 							.foregroundColor(Color.black)
 							.aspectRatio(contentMode: .fit)
 							.imageScale(.large)
 					}
-
-					Text("\(String(format: "%0.2f", (percentage ?? 0) * 100))%")
+					
+					
+					Text("\(String(format: "%0.2f", percentage * 100))%")
 						.font(.headline)
 						.bold()
-
+					
 				}
-
-
+				
+				
 				Spacer()
 			}
 			.padding(.top)
 			.padding(.horizontal)
-
+			
 		}
 		.background(self.color)
 		.mask(RoundedRectangle(cornerRadius: 25))
 		.frame(width: self.width, height: self.height, alignment: .center)
-		.shadow(radius: 3)
+		.shadow(radius: 5)
+		.padding(.leading)
+		
 	}
 }

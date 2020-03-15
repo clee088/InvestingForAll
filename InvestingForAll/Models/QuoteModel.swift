@@ -31,18 +31,23 @@ class QuoteModel: ObservableObject {
 	
 	private func getQuoteData(symbol: String) {
 		let jsonUrlString = "https://finnhub.io/api/v1/quote?symbol=\(symbol)&token=bpjsg9nrh5r9328echa0"
-
-		guard let url = URL(string: jsonUrlString) else { return }
+		
+		guard let url = URL(string: jsonUrlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "") else {
+			print("Unable to get data")
+			return
+		}
 		URLSession.shared.dataTask(with: url) { (data, response, err) in
 
-			guard let data = data else { return }
+			guard let data = data else {
+				print("Error getting data")
+				return
+			}
 
 			do {
 				let quoteData = try JSONDecoder().decode(Quote.self, from: data)
 
 				DispatchQueue.main.async {
 					self.quoteResult = quoteData
-					
 				}
 
 
