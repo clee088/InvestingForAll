@@ -11,17 +11,17 @@ import SwiftUI
 struct OverviewView: View {
 	
 	@State var sectorETFS: [String : String] = [
-		"Communication Services" : "XLY",
-		"Consumer Discretionary" : "XLP",
-		"Consumer Staples" : "XLE",
-		"Energy" : "XLF",
-		"Financials" : "XLV",
-		"Health Care" : "XLI",
-		"Industrials" : "XLK",
-		"Information Technology" : "XLB",
-		"Materials" : "XLRE",
-		"Real Estate" : "XLU",
-		"Utilities" : "XLY",
+		"Communication Services" : "XLC",
+		"Consumer Discretionary" : "XLY",
+		"Consumer Staples" : "XLP",
+		"Energy" : "XLE",
+		"Financials" : "XLF",
+		"Health Care" : "XLV",
+		"Industrials" : "XLI",
+		"Information Technology" : "XLK",
+		"Materials" : "XLB",
+		"Real Estate" : "XLRE",
+		"Utilities" : "XLU",
 	]
 	
 	@State var indices: [String : String] = [
@@ -38,9 +38,9 @@ struct OverviewView: View {
 		ZStack {
 			ScrollView() {
 				
-				horizontalCardView(title: "Sectors", width: self.width, height: self.height, color: Color("Pink"), symbols: $sectorETFS)
+				horizontalCardView(title: "Sectors", width: self.width, height: self.height, color: Color("Blue"), symbols: $sectorETFS)
 				
-				horizontalCardView(title: "Indices", width: self.width, height: self.height, color: Color("Light Blue"), symbols: $indices)
+				horizontalCardView(title: "Indices", width: self.width, height: self.height, color: Color("Blue"), symbols: $indices)
 				
 			}
 		}
@@ -92,7 +92,7 @@ struct horizontalCardView: View {
 							VStack {
 								
 								Spacer()
-								
+
 								HCardView(title: symbolName[item], ticker: symbolTicker[item], quote: QuoteModel(symbol: symbolTicker[item]), width: self.width, height: self.height, color: self.color)
 								
 								Spacer()
@@ -122,13 +122,15 @@ struct HCardView: View {
 	
 	var body: some View {
 		
-		let percentage: Double = ((self.quote.quoteResult?.c ?? 0) - (self.quote.quoteResult?.pc ?? 0)) / (self.quote.quoteResult?.pc ?? 0)
+		let change: Double = (self.quote.quoteResult?.c ?? 0) - (self.quote.quoteResult?.pc ?? 0)
+		
+		let percentage: Double = (change / (self.quote.quoteResult?.pc ?? 0)) * 100
 		
 		return ZStack {
 			
 			VStack {
 				HStack {
-					Text(title)
+					Text(self.title)
 						.font(.headline)
 						.lineLimit(nil)
 						.multilineTextAlignment(.leading)
@@ -138,7 +140,7 @@ struct HCardView: View {
 				
 				
 				HStack {
-					Text(ticker)
+					Text(self.ticker)
 						.font(.subheadline)
 					
 					Spacer()
@@ -151,13 +153,13 @@ struct HCardView: View {
 					
 					if percentage > 0 {
 						Image(systemName: "arrowtriangle.up.circle")
-							.foregroundColor(Color("Green"))
+							.foregroundColor(Color.green)
 							.aspectRatio(contentMode: .fit)
 							.imageScale(.large)
 					}
 					if percentage < 0 {
 						Image(systemName: "arrowtriangle.down.circle")
-							.foregroundColor(Color("Red"))
+							.foregroundColor(Color.red)
 							.aspectRatio(contentMode: .fit)
 							.imageScale(.large)
 					}
@@ -169,7 +171,7 @@ struct HCardView: View {
 					}
 					
 					
-					Text("\(String(format: "%0.2f", percentage * 100))%")
+					Text("\(String(format: "%0.2f", percentage))%")
 						.font(.headline)
 						.bold()
 					
@@ -185,7 +187,7 @@ struct HCardView: View {
 		.background(self.color)
 		.mask(RoundedRectangle(cornerRadius: 25))
 		.frame(width: self.width, height: self.height, alignment: .center)
-		.shadow(radius: 5)
+		.shadow(color: self.color, radius: 5)
 		.padding(.leading)
 		
 	}
