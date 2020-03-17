@@ -16,6 +16,10 @@ struct ContentView: View {
 	
 	@State var viewState: CGSize = .zero
 	
+	@State private var response: Double = 0.3
+	@State private var dampingFraction: Double = 0.7
+	@State private var blendDuration: Double = 0.3
+	
 	var body: some View {
 		GeometryReader { geometry in
 			ZStack() {
@@ -24,9 +28,43 @@ struct ContentView: View {
 					
 					ZStack {
 						
-						StockPresentView(isPresented: self.$showSearch)
-							.offset(x: self.showSearch ? 0 : geometry.size.width, y: 0)
+						SearchView(isPresented: self.$showSearch)
+							.offset(x: self.showSearch ? self.viewState.width : self.viewState.width + geometry.size.width, y: 0)
 							.zIndex(1)
+							.animation(.interactiveSpring(response: self.response, dampingFraction: self.dampingFraction, blendDuration: self.blendDuration))
+							.gesture(
+								DragGesture()
+									.onChanged() { value in
+										
+										if value.translation.width > 0 && self.showSearch == true {
+											self.viewState.width = value.translation.width
+										}
+										
+										if value.translation.width < 0 && self.showSearch == false {
+											self.viewState.width = value.translation.width
+										}
+										
+								}
+								.onEnded() { value in
+									
+									if value.predictedEndTranslation.width > geometry.size.width * 0.5 && self.showSearch == true {
+										
+										self.showSearch.toggle()
+										self.viewState = .zero
+										
+									}
+									
+									if value.predictedEndTranslation.width < 0 && self.showSearch == false {
+										
+										self.showSearch.toggle()
+										self.viewState = .zero
+										
+									}
+										
+									else {
+										self.viewState = .zero
+									}
+							})
 						
 						VStack {
 							HStack {
@@ -71,11 +109,6 @@ struct ContentView: View {
 								
 								OverviewView(width: geometry.size.width * 0.4, height: geometry.size.height * 0.2)
 							}
-							
-							if self.index == 2 {
-								//						StockView(candle: CandlesModel(symbol: "AAPL", interval: "D", from: 1583055000, to: 1584115200))
-								StockPresentView(isPresented: self.$showSearch)
-							}
 								
 							else {
 								/*@START_MENU_TOKEN@*/EmptyView()/*@END_MENU_TOKEN@*/
@@ -84,7 +117,8 @@ struct ContentView: View {
 							Spacer()
 							
 						}
-						.offset(x: self.showSearch ? geometry.size.width * -1 : 0, y: 0)
+						.animation(.interactiveSpring(response: self.response, dampingFraction: self.dampingFraction, blendDuration: self.blendDuration))
+						.offset(x: self.showSearch ? (geometry.size.width * -1) + self.viewState.width : self.viewState.width, y: 0)
 						
 					}
 					
@@ -97,7 +131,6 @@ struct ContentView: View {
 					
 				}
 				.edgesIgnoringSafeArea(.bottom)
-				//					.offset(x: self.showSearch ? geometry.size.width : 0, y: 0)
 				
 			}
 		}
@@ -107,17 +140,17 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
 	static var previews: some View {
 		Group {
-//		   ContentView()
-//			  .previewDevice(PreviewDevice(rawValue: "iPhone SE"))
-//			  .previewDisplayName("iPhone SE")
-//
-//			ContentView()
-//				.previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-//				.previewDisplayName("iPhone 8")
+			//		   ContentView()
+			//			  .previewDevice(PreviewDevice(rawValue: "iPhone SE"))
+			//			  .previewDisplayName("iPhone SE")
+			//
+			//			ContentView()
+			//				.previewDevice(PreviewDevice(rawValue: "iPhone 8"))
+			//				.previewDisplayName("iPhone 8")
 			
-		   ContentView()
-			  .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro"))
-			  .previewDisplayName("iPhone 11 Pro")
+			ContentView()
+				.previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro"))
+				.previewDisplayName("iPhone 11 Pro")
 		}
 	}
 }
