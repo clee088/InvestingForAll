@@ -38,8 +38,6 @@ class CandlesModel: ObservableObject {
 			return
 		}
 		
-		print(url)
-		
 		URLSession.shared.dataTask(with: url) { (data, response, err) in
 
 			guard let data = data else {

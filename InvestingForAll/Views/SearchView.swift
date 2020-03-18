@@ -27,7 +27,7 @@ struct SearchView: View {
 						ZStack {
 							Capsule()
 								.foregroundColor(Color.clear)
-								.background(LinearGradient(gradient: Gradient(colors: [Color("Card Dark"), Color("Card")]), startPoint: .leading, endPoint: .trailing))
+								.background(LinearGradient(gradient: Gradient(colors: [Color("Search Dark"), Color("Search Light")]), startPoint: .leading, endPoint: .trailing))
 								.mask(Capsule())
 							
 							HStack {
@@ -105,52 +105,6 @@ struct StockPresentView_Previews: PreviewProvider {
 	
 	static var previews: some View {
 		SearchView(isPresented: .constant(true))
-	}
-}
-
-struct StockView: View {
-	
-	@ObservedObject var candle: CandlesModel
-	
-	var data: [Float] = [298.81,289.32,302.74,292.92,289.03,266.17,285.34,275.43,248.23,278.02,298.81,289.32,302.74,292.92,289.03,266.17,285.34,275.43,248.23,278.02,298.81,289.32,302.74,292.92,289.03,266.17,285.34,275.43,248.23,278.02,]
-	
-	@State var color: Bool = false
-	
-	var body: some View {
-		
-		if self.candle.candlesResult?.c.first ?? 0 > self.candle.candlesResult?.c.last ?? 0 {
-			self.color.toggle()
-		}
-		
-		return ZStack {
-			GeometryReader { geometry in
-				ScrollView(.horizontal) {
-					
-					Path { path in
-						
-						var x = 0
-						
-						path.move(to: CGPoint(x: x, y: Int(self.candle.candlesResult?.c.first ?? 0)))
-						
-						self.candle.candlesResult?.c.forEach { price in
-							
-							path.addLine(to: CGPoint(x: CGFloat(x), y: CGFloat(price)))
-							
-							x += (Int(geometry.size.width) / (self.candle.candlesResult?.c.count ?? 0))
-							
-						}
-						
-						
-					}
-					.stroke(self.color ? Color.green : Color.red, style: StrokeStyle(lineWidth: 2, lineJoin: .round))
-					.frame(width: geometry.size.width, height: geometry.size.height)
-					
-				}
-			}
-		}
-		.rotationEffect(.degrees(180), anchor: .center)
-		.rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-		.padding()
 	}
 }
 

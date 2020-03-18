@@ -23,6 +23,7 @@
 		509CD160241FD36900535629 /* SymbolListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509CD15F241FD36900535629 /* SymbolListModel.swift */; };
 		50AE92EB24202EBE0004BB2A /* USSymbols.json in Resources */ = {isa = PBXBuildFile; fileRef = 50AE92EA24202EBE0004BB2A /* USSymbols.json */; };
 		50EE83EB24211D4E00CA9A2A /* ViewStateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EE83EA24211D4E00CA9A2A /* ViewStateModel.swift */; };
+		50EE83ED24214CE600CA9A2A /* StockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EE83EC24214CE600CA9A2A /* StockView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 		509CD15F241FD36900535629 /* SymbolListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymbolListModel.swift; sourceTree = "<group>"; };
 		50AE92EA24202EBE0004BB2A /* USSymbols.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = USSymbols.json; sourceTree = "<group>"; };
 		50EE83EA24211D4E00CA9A2A /* ViewStateModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewStateModel.swift; sourceTree = "<group>"; };
+		50EE83EC24214CE600CA9A2A /* StockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,6 +174,7 @@
 			children = (
 				5083657324170A1F00667A0D /* OverviewView.swift */,
 				5083657524170CEB00667A0D /* SearchView.swift */,
+				50EE83EC24214CE600CA9A2A /* StockView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -314,6 +317,7 @@
 				5083657624170CEB00667A0D /* SearchView.swift in Sources */,
 				507FC219241697D2003729C6 /* InvestingForAll.xcdatamodeld in Sources */,
 				507FC21B241697D2003729C6 /* ContentView.swift in Sources */,
+				50EE83ED24214CE600CA9A2A /* StockView.swift in Sources */,
 				509CD160241FD36900535629 /* SymbolListModel.swift in Sources */,
 				507FC216241697D2003729C6 /* SceneDelegate.swift in Sources */,
 				50EE83EB24211D4E00CA9A2A /* ViewStateModel.swift in Sources */,
