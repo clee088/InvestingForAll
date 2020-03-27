@@ -27,23 +27,45 @@ struct OverviewView: View {
 	]
 	
 	@State var indices: [String : [String]] = [
-		"S&P 500" : ["^GSPC", "chart.bar"],
-		"Dow 30" : ["^DJI", "chart.bar"],
-		"Nasdaq" : ["^IXIC", "chart.bar"],
-		"Russell 2000" : ["^XAX", "chart.bar"]
+		"SPDR S&P 500 ETF Trust" : ["SPY", "chart.bar"],
+		"SPDR Dow Jones Industrial Average ETF Trust" : ["DIA", "chart.bar"],
+		"Invesco QQQ Trust" : ["QQQ", "chart.bar"],
+		"iShares Russell 2000 ETF" : ["IWM", "chart.bar"]
 	]
+	
+	var overallWidth: CGFloat?
+	var overallHeight: CGFloat?
 	
 	var width: CGFloat?
 	var height: CGFloat?
 	
 	var body: some View {
-		ZStack {
+		
+		let sortedSector = sectorETFS.sorted(by: {$0.0 < $1.0} )
+
+		let sectorName = sortedSector.map { $0.key }
+		let sectorTickers = sortedSector.map { $0.value.first ?? "N/A" }
+		let sectorImage = sortedSector.map { $0.value.last ?? "N/A" }
+		
+		let sortedIndices = indices.sorted(by: {$0.0 < $1.0} )
+
+		let indexName = sortedIndices.map { $0.key }
+		let indexTickers = sortedIndices.map { $0.value.first ?? "N/A" }
+		let indexImage = sortedIndices.map { $0.value.last ?? "N/A" }
+		
+		return ZStack {
+			
 			ScrollView() {
 				
-				horizontalCardView(title: "Sectors", width: self.width, height: self.height, color: self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"), shadowColor: self.colorScheme == .light ? Color("Shadow Light") : Color("Shadow Dark"), symbols: $sectorETFS, showImage: true, showPrices: false)
-				
-				horizontalCardView(title: "Indices", width: self.width, height: self.height, color: self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"), shadowColor: self.colorScheme == .light ? Color("Shadow Light") : Color("Shadow Dark"), symbols: $indices, showImage: false, showPrices: true)
-				
+				VStack {
+					
+					horizontalCardView(title: "Sectors", width: self.width, height: self.height, color: self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"), shadowColor: self.colorScheme == .light ? Color("Shadow Light") : Color("Shadow Dark"), showImage: true, showPrices: false, quote: QuoteModel(symbol: sectorTickers.joined(separator: ","), sandbox: true), symbolName: sectorName, symbolTicker: sectorTickers, symbolImageName: sectorImage)
+										
+					horizontalCardView(title: "Indices", width: self.width, height: self.height, color: self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"), shadowColor: self.colorScheme == .light ? Color("Shadow Light") : Color("Shadow Dark"), showImage: true, showPrices: true, quote: QuoteModel(symbol: indexTickers.joined(separator: ","), sandbox: true), symbolName: indexName, symbolTicker: indexTickers, symbolImageName: indexImage)
+						.onAppear() {
+							
+					}
+				}
 			}
 		}
 	}
@@ -59,10 +81,10 @@ struct OverviewView_Previews: PreviewProvider {
 					.environment(\.colorScheme, .light)
 			}
 			
-			GeometryReader { geometry in
-				OverviewView(width: geometry.size.width * 0.4, height: geometry.size.height * 0.2)
-					.colorScheme(.dark)
-			}
+//			GeometryReader { geometry in
+//				OverviewView(width: geometry.size.width * 0.4, height: geometry.size.height * 0.2)
+//					.colorScheme(.dark)
+//			}
 			
 		}
 	}
@@ -76,24 +98,29 @@ struct horizontalCardView: View {
 	var color: Color
 	var shadowColor: Color
 	
-	@Binding var symbols: [String : [String]]
-	
 	@State var showImage: Bool
 	@State var showPrices: Bool
 	
+	@ObservedObject var quote: QuoteModel
+	@State var symbolName: [String]
+	@State var symbolTicker: [String]
+	@State var symbolImageName: [String]
+	
 	var body: some View {
 		
-		let sortedSymbols = symbols.sorted(by: {$0.0 < $1.0} )
+//		let sortedSymbols = symbols.sorted(by: {$0.0 < $1.0} )
+//
+//		let symbolName = sortedSymbols.map { $0.key }
+//		let symbolTicker = sortedSymbols.map { $0.value.first ?? "N/A" }
+//		let symbolImage = sortedSymbols.map { $0.value.last ?? "N/A" }
 		
-		let symbolName = sortedSymbols.map { $0.key }
-		let symbolTicker = sortedSymbols.map { $0.value.first ?? "N/A" }
-		let symbolImage = sortedSymbols.map { $0.value.last ?? "N/A" }
+		let symbolData: [QuoteBatchValue]? = self.quote.quoteResult?.map { $0.value } ?? []
 		
 		return ZStack {
 			VStack {
 				
 				HStack {
-					Text(title)
+					Text(self.title)
 						.font(.system(size: 20))
 						.bold()
 					
@@ -103,20 +130,47 @@ struct horizontalCardView: View {
 				.padding(.leading)
 				
 				ScrollView(.horizontal) {
-					HStack(spacing: 5.0) {
-						ForEach(0..<sortedSymbols.count) { item in
-							
-							VStack {
+					HStack {
+						
+						if self.quote.dataIsLoaded {
+							ForEach(0..<self.quote.quoteResult!.count) { item in
 								
-								Spacer()
+								VStack {
+									
+									Spacer()
 
-								HCardView(title: symbolName[item], ticker: symbolTicker[item], imageName: symbolImage[item], quote: QuoteModel(symbol: symbolTicker[item]), width: self.width, height: self.height, color: self.color, shadowColor: self.shadowColor, showImage: self.$showImage, showPrices: self.$showPrices)
-								
-								Spacer()
+									HCardView(index: item, title: self.symbolName[item], ticker: self.symbolTicker[item], imageName: self.symbolImageName[item], change: symbolData?[item].quote?.change ?? 0, percentage: (symbolData?[item].quote?.changePercent ?? 0) * 100, price: symbolData?[item].quote?.latestPrice ?? 0, width: self.width, height: self.height, color: self.color, shadowColor: self.shadowColor, showImage: self.$showImage, showPrices: self.$showPrices)
+									
+									Spacer()
+								}
 							}
 						}
+							
+						else {
+							
+							Spacer()
+							
+							Text("Unavailable... Reloading")
+								.bold()
+								.frame(width: self.width, height: self.height, alignment: .center)
+								.padding()
+								.onAppear() {
+
+									if self.quote.dataIsLoaded == false {
+										DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+											self.quote.getQuoteData(symbol: self.symbolTicker.joined(separator: ","), sandbox: true)
+										}
+									}
+							}
+							
+							Spacer()
+							
+						}
+						
 					}
+					
 				}
+				
 			}
 		}
 	}
@@ -124,10 +178,14 @@ struct horizontalCardView: View {
 
 struct HCardView: View {
 	
+	var index: Int
 	var title: String
 	var ticker: String
 	var imageName: String
-	@ObservedObject var quote: QuoteModel
+	
+	var change: Double = 0
+	var percentage: Double = 0
+	var price: Double = 0
 	
 	var width: CGFloat?
 	var height: CGFloat?
@@ -139,99 +197,116 @@ struct HCardView: View {
 	
 	var body: some View {
 		
-		let change: Double = (self.quote.quoteResult?.c ?? 0) - (self.quote.quoteResult?.pc ?? 0)
+//		let quoteDataSorted = self.quote.quoteResult?.sorted(by: {$0.0 < $1.0} )
+//		let symbols: [String]? = quoteDataSorted?.map { $0.key } ?? []
+//		let symbolData: [QuoteBatchValue]? = quoteDataSorted?.map { $0.value } ?? []
+//
+//		if quoteDataSorted?.isEmpty == false {
+//			symbol = quoteDataSorted?.map { $0.key } ?? []
+//			change = (symbolData?[index].quote?.change ?? 0)
+//			percentage = (symbolData?[index].quote?.changePercent ?? 0) * 100
+//			price = (symbolData?[index].quote?.latestPrice ?? 0)
+//		}
 		
-		let percentage: Double = (change / (self.quote.quoteResult?.pc ?? 0)) * 100
-		
-		let price: Double = self.quote.quoteResult?.c ?? 0
+//		let change: Double = (self.quote.quoteResult?.c ?? 0) - (self.quote.quoteResult?.pc ?? 0)
+//
+//		let change: Double = self.quote.quoteResult
+////		let percentage: Double = (change / (self.quote.quoteResult?.pc ?? 0)) * 100
+//		let percentage: Double = (self.quote.quoteResult?.changePercent ?? 0) * 100
+////
+////		let price: Double = self.quote.quoteResult?.c ?? 0
+//		let price: Double = self.quote.quoteResult?.latestPrice ?? 0
 		
 		return ZStack {
 			
-			VStack {
-				
-				if self.showImage {
-					HStack {
-						Image(systemName: self.imageName)
-							.imageScale(.large)
+				ZStack {
+					
+					VStack {
+						
+						if self.showImage {
+							HStack {
+								Image(systemName: self.imageName)
+									.imageScale(.large)
+								
+								Spacer()
+							}
+						} else {
+							/*@START_MENU_TOKEN@*/EmptyView()/*@END_MENU_TOKEN@*/
+						}
+						
+						HStack {
+							Text(self.title)
+								.font(.headline)
+								.bold()
+								.allowsTightening(true)
+								.lineLimit(nil)
+								.multilineTextAlignment(.leading)
+							
+							Spacer()
+						}
+						
+						
+						HStack {
+							Text(self.ticker)
+								.font(.subheadline)
+							
+							Spacer()
+						}
 						
 						Spacer()
-					}
-				} else {
-					/*@START_MENU_TOKEN@*/EmptyView()/*@END_MENU_TOKEN@*/
-				}
-				
-				HStack {
-					Text(self.title)
-						.font(.headline)
-						.bold()
-						.allowsTightening(true)
-						.lineLimit(nil)
-						.multilineTextAlignment(.leading)
-					
-					Spacer()
-				}
-				
-				
-				HStack {
-					Text(self.ticker)
-						.font(.subheadline)
-					
-					Spacer()
-				}
-				
-				Spacer()
-				
-				if self.showPrices {
-					VStack {
+						
+						if self.showPrices {
+							VStack {
+								HStack {
+									Text(String(format: "%0.2f", self.price))
+										.font(.headline)
+										.bold()
+									
+									Spacer()
+								}
+								
+								HStack {
+									Text(String(format: "%0.2f", self.change))
+										.font(.subheadline)
+										.foregroundColor(self.change > 0 ? Color.green : Color.red)
+									
+									Spacer()
+								}
+								
+							}
+						} else {
+							/*@START_MENU_TOKEN@*/EmptyView()/*@END_MENU_TOKEN@*/
+						}
+						
 						HStack {
-							Text(String(format: "%0.2f", price))
+							
+							
+							if self.percentage != 0 {
+								Image(systemName: self.change > 0 ? "arrowtriangle.up.circle" : "arrowtriangle.down.circle")
+									.foregroundColor(self.change > 0 ? Color.green : Color.red)
+									.aspectRatio(contentMode: .fit)
+									.imageScale(.large)
+							}
+							
+							else {
+								Image(systemName: "arrowtriangle.right.circle")
+									.foregroundColor(Color.black)
+									.aspectRatio(contentMode: .fit)
+									.imageScale(.large)
+							}
+							
+							Text("\(String(format: "%0.2f", self.percentage))%")
 								.font(.headline)
 								.bold()
 							
-							Spacer()
 						}
+						.padding(.trailing)
 						
-						HStack {
-							Text(String(format: "%0.2f", change))
-								.font(.subheadline)
-								.foregroundColor(change > 0 ? Color.green : Color.red)
-							
-							Spacer()
-						}
-						
+						Spacer()
 					}
-				} else {
-					/*@START_MENU_TOKEN@*/EmptyView()/*@END_MENU_TOKEN@*/
+					.padding(.top)
+					.padding(.leading)
 				}
-				
-				HStack {
-					
-					
-					if percentage != 0 {
-						Image(systemName: change > 0 ? "arrowtriangle.up.circle" : "arrowtriangle.down.circle")
-							.foregroundColor(change > 0 ? Color.green : Color.red)
-							.aspectRatio(contentMode: .fit)
-							.imageScale(.large)
-					}
-					
-					else {
-						Image(systemName: "arrowtriangle.right.circle")
-							.foregroundColor(Color.black)
-							.aspectRatio(contentMode: .fit)
-							.imageScale(.large)
-					}
-					
-					Text("\(String(format: "%0.2f", percentage))%")
-						.font(.headline)
-						.bold()
-					
-				}
-				.padding(.trailing)
-				
-				Spacer()
-			}
-			.padding(.top)
-			.padding(.leading)
 			
 		}
 		.background(self.color)
@@ -240,7 +315,7 @@ struct HCardView: View {
 		.clipped()
 		.shadow(color: self.shadowColor, radius: 8, x: 0, y: 7)
 		.padding(.bottom)
-		.padding(.leading)
+		.padding(EdgeInsets(top: 0, leading: (self.width ?? 0) * 0.08, bottom: 0, trailing: (self.width ?? 0) * 0.08))
 		
 	}
 }

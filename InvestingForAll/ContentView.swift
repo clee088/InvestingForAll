@@ -41,6 +41,7 @@ struct ContentView: View {
 											
 											if value.translation.width > 0 && self.showSearch == true {
 												self.viewState.width = value.translation.width
+												print(value.translation.width)
 											}
 											
 											if value.translation.width < 0 && self.showSearch == false {
@@ -114,11 +115,13 @@ struct ContentView: View {
 								
 								if self.index == 0 {
 									
-									OverviewView(width: geometry.size.width * 0.4, height: geometry.size.height * 0.25)
+									OverviewView(overallWidth: geometry.size.width, overallHeight: geometry.size.height, width: geometry.size.width * 0.4, height: geometry.size.height * 0.25)
+//										.frame(width: geometry.size.width)
 								}
 								
 								if self.index == 2 {
-									StockView()
+//									StockView()
+									EmptyView()
 								}
 									
 								else {
@@ -193,28 +196,14 @@ struct customTabView: View {
 					
 					Spacer(minLength: 0)
 					
-					if item == self.index {
-						
-						Image(systemName: self.imageNames[item])
-							.resizable()
-							.aspectRatio(contentMode: .fit)
-							.frame(width: ((self.width ?? 0) / 16), height: ((self.width ?? 0) / 16), alignment: .center)
-							.foregroundColor(Color("Button"))
-							.animation(.easeOut)
-							.onTapGesture {
-								self.index = item
-						}
-						
-					}
-					else {
-						Image(systemName: self.imageNames[item])
-							.resizable()
-							.aspectRatio(contentMode: .fit)
-							.frame(width: ((self.width ?? 0) / 16), height: ((self.width ?? 0) / 16), alignment: .center)
-							.foregroundColor(Color.gray)
-							.onTapGesture {
-								self.index = item
-						}
+					Image(systemName: self.imageNames[item])
+						.resizable()
+						.aspectRatio(contentMode: .fit)
+						.frame(width: ((self.width ?? 0) / 16), height: ((self.width ?? 0) / 16), alignment: .center)
+						.foregroundColor(item == self.index ? Color("Button") : Color.gray)
+						.animation(.easeOut)
+						.onTapGesture {
+							self.index = item
 					}
 					
 					Spacer(minLength: 0)

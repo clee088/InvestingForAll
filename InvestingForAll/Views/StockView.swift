@@ -12,8 +12,8 @@ struct StockView: View {
 	
 	@Environment(\.colorScheme) var colorScheme: ColorScheme
 	
-	@State var companyName: String = "Enphase Energy"
-	@State var symbol: String = "ENPH"
+	@State var companyName: String
+	@State var symbol: String
 	
     var body: some View {
 		return ZStack {
@@ -49,7 +49,7 @@ struct StockView: View {
 
 struct StockView_Previews: PreviewProvider {
     static var previews: some View {
-        StockView()
+		StockView(companyName: "Enphase Energy", symbol: "ENPH")
     }
 }
 

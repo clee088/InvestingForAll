@@ -16,6 +16,8 @@ struct SearchView: View {
 	
 	@Binding var isPresented: Bool
 	
+	@State var presentStock: Bool = false
+	
 	var body: some View {
 		
 		GeometryReader { geometry in
@@ -80,11 +82,17 @@ struct SearchView: View {
 											Spacer()
 										}
 										.padding(.horizontal)
+										.onTapGesture {
+											self.presentStock.toggle()
+										}
 									}
 									.frame(width: geometry.size.width * 0.9, height: geometry.size.height * 0.08, alignment: .center)
-									.background(Color("Card"))
+									.background(Color("Card Light"))
 									.mask(RoundedRectangle(cornerRadius: 25))
 									.padding(.vertical)
+									.sheet(isPresented: self.$presentStock) {
+										StockView(companyName: result.description, symbol: result.symbol)
+									}
 								}
 							}
 						}
