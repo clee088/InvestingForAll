@@ -21,9 +21,40 @@ struct SupportedSymbol: Decodable {
 	var region: String
 	var currency: String
 	var isEnabled: Bool
-	var figi: String
-	var cik: String
+	var figi: String?
+	var cik: String?
 	
 }
 
 typealias SupportedSymbols = [SupportedSymbol]
+
+class SupportedSymbolModel: ObservableObject {
+	
+	init() {
+		self.getSupportedSymbols()
+	}
+	
+	@Published var supportedSymbolsResults: SupportedSymbols?
+	
+	private func getSupportedSymbols() {
+		guard let path = Bundle.main.url(forResource: "IEXSupportedSymbols", withExtension: "json") else { return }
+		
+		guard let data = try? Data(contentsOf: path) else {
+			print("Error getting data")
+			return
+		}
+		
+		do {
+			let supportedSymbolData = try JSONDecoder().decode(SupportedSymbols.self, from: data)
+			
+			DispatchQueue.main.async {
+				self.supportedSymbolsResults = supportedSymbolData
+			}
+			
+		} catch let jsonErr {
+			print("Error serializing json:", jsonErr)
+		}
+		
+	}
+	
+}

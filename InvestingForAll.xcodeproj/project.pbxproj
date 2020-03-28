@@ -22,8 +22,6 @@
 		508365712416E58700667A0D /* QuoteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 508365702416E58700667A0D /* QuoteModel.swift */; };
 		5083657424170A1F00667A0D /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5083657324170A1F00667A0D /* OverviewView.swift */; };
 		5083657624170CEB00667A0D /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5083657524170CEB00667A0D /* SearchView.swift */; };
-		509CD160241FD36900535629 /* SymbolListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509CD15F241FD36900535629 /* SymbolListModel.swift */; };
-		50AE92EB24202EBE0004BB2A /* USSymbols.json in Resources */ = {isa = PBXBuildFile; fileRef = 50AE92EA24202EBE0004BB2A /* USSymbols.json */; };
 		50EE83ED24214CE600CA9A2A /* StockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EE83EC24214CE600CA9A2A /* StockView.swift */; };
 /* End PBXBuildFile section */
 
@@ -66,8 +64,6 @@
 		508365702416E58700667A0D /* QuoteModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteModel.swift; sourceTree = "<group>"; };
 		5083657324170A1F00667A0D /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
 		5083657524170CEB00667A0D /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
-		509CD15F241FD36900535629 /* SymbolListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymbolListModel.swift; sourceTree = "<group>"; };
-		50AE92EA24202EBE0004BB2A /* USSymbols.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = USSymbols.json; sourceTree = "<group>"; };
 		50EE83EC24214CE600CA9A2A /* StockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -164,10 +160,8 @@
 			children = (
 				508365702416E58700667A0D /* QuoteModel.swift */,
 				503A0899241ED9D9008DE2A7 /* CandlesModel.swift */,
-				509CD15F241FD36900535629 /* SymbolListModel.swift */,
 				507ACC37242E5B89004A3D82 /* SupportedSymbolsModel.swift */,
 				507ACC35242E59ED004A3D82 /* IEXSupportedSymbols.json */,
-				50AE92EA24202EBE0004BB2A /* USSymbols.json */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -290,7 +284,6 @@
 				507ACC36242E59ED004A3D82 /* IEXSupportedSymbols.json in Resources */,
 				507FC220241697D5003729C6 /* Preview Assets.xcassets in Resources */,
 				507FC21D241697D5003729C6 /* Assets.xcassets in Resources */,
-				50AE92EB24202EBE0004BB2A /* USSymbols.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -322,7 +315,6 @@
 				507FC219241697D2003729C6 /* InvestingForAll.xcdatamodeld in Sources */,
 				507FC21B241697D2003729C6 /* ContentView.swift in Sources */,
 				50EE83ED24214CE600CA9A2A /* StockView.swift in Sources */,
-				509CD160241FD36900535629 /* SymbolListModel.swift in Sources */,
 				507FC216241697D2003729C6 /* SceneDelegate.swift in Sources */,
 				508365712416E58700667A0D /* QuoteModel.swift in Sources */,
 				507ACC38242E5B89004A3D82 /* SupportedSymbolsModel.swift in Sources */,

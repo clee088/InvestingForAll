@@ -12,7 +12,7 @@ struct SearchView: View {
 	
 	@State var ticker: String = ""
 	
-	@State private var searchResults: [SymbolList] = []
+	@State private var searchResults: SupportedSymbols = []
 	
 	@Binding var isPresented: Bool
 	
@@ -76,7 +76,7 @@ struct SearchView: View {
 											Text(result.symbol)
 												.font(.subheadline)
 											
-											Text(result.description)
+											Text(result.name)
 												.font(.subheadline)
 											
 											Spacer()
@@ -91,7 +91,7 @@ struct SearchView: View {
 									.mask(RoundedRectangle(cornerRadius: 25))
 									.padding(.vertical)
 									.sheet(isPresented: self.$presentStock) {
-										StockView(companyName: result.description, symbol: result.symbol)
+										StockView(companyName: result.name, symbol: result.symbol)
 									}
 								}
 							}
@@ -119,15 +119,15 @@ struct StockPresentView_Previews: PreviewProvider {
 struct SearchBar: UIViewRepresentable {
 	
 	@Binding var text: String
-	@Binding var searchResults: [SymbolList]
+	@Binding var searchResults: SupportedSymbols
 	
 	class Coordinator: NSObject, UISearchBarDelegate {
 		
 		@Binding var text: String
-		@Binding var searchResults: [SymbolList]
-		@ObservedObject var symbolList: SymbolListModel = SymbolListModel()
+		@Binding var searchResults: SupportedSymbols
+		@ObservedObject var symbolList: SupportedSymbolModel = SupportedSymbolModel()
 		
-		init(text: Binding<String>, searchResults: Binding<[SymbolList]>) {
+		init(text: Binding<String>, searchResults: Binding<SupportedSymbols>) {
 			_text = text
 			_searchResults = searchResults
 		}
@@ -139,8 +139,8 @@ struct SearchBar: UIViewRepresentable {
 				
 				if self.text != "" && self.text.count >= 2 {
 					
-					self.searchResults = self.symbolList.symbolListResults?.filter {
-						$0.symbol.hasPrefix(self.text.uppercased()) || $0.description.contains(self.text.uppercased())
+					self.searchResults = self.symbolList.supportedSymbolsResults?.filter {
+						$0.symbol.hasPrefix(self.text.uppercased()) || $0.name.contains(self.text.capitalized)
 						} ?? []
 				}
 				
