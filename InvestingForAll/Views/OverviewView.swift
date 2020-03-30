@@ -12,6 +12,8 @@ struct OverviewView: View {
 	
 	@Environment(\.colorScheme) var colorScheme: ColorScheme
 	
+	@EnvironmentObject var developer: DeveloperModel
+	
 	@State var sectorETFS: [String : [String]] = [
 		"Communication Services" : ["XLC", "phone"],
 		"Consumer Discretionary" : ["XLY", "car"],
@@ -59,9 +61,9 @@ struct OverviewView: View {
 				
 				VStack {
 					
-					horizontalCardView(title: "Sectors", width: self.width, height: self.height, color: self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"), shadowColor: self.colorScheme == .light ? Color("Shadow Light") : Color("Shadow Dark"), showImage: true, showPrices: false, quote: QuoteModel(symbol: sectorTickers.joined(separator: ","), sandbox: true), symbolName: sectorName, symbolTicker: sectorTickers, symbolImageName: sectorImage)
+					horizontalCardView(title: "Sectors", width: self.width, height: self.height, color: self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"), shadowColor: self.colorScheme == .light ? Color("Shadow Light") : Color("Shadow Dark"), showImage: true, showPrices: false, quote: QuoteBatchModel(symbol: sectorTickers.joined(separator: ","), sandbox: self.developer.sandboxMode), symbolName: sectorName, symbolTicker: sectorTickers, symbolImageName: sectorImage)
 										
-					horizontalCardView(title: "Indices", width: self.width, height: self.height, color: self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"), shadowColor: self.colorScheme == .light ? Color("Shadow Light") : Color("Shadow Dark"), showImage: true, showPrices: true, quote: QuoteModel(symbol: indexTickers.joined(separator: ","), sandbox: true), symbolName: indexName, symbolTicker: indexTickers, symbolImageName: indexImage)
+					horizontalCardView(title: "Indices", width: self.width, height: self.height, color: self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"), shadowColor: self.colorScheme == .light ? Color("Shadow Light") : Color("Shadow Dark"), showImage: true, showPrices: true, quote: QuoteBatchModel(symbol: indexTickers.joined(separator: ","), sandbox: self.developer.sandboxMode), symbolName: indexName, symbolTicker: indexTickers, symbolImageName: indexImage)
 						.onAppear() {
 							
 					}
@@ -92,6 +94,8 @@ struct OverviewView_Previews: PreviewProvider {
 
 struct horizontalCardView: View {
 	
+	@EnvironmentObject var developer: DeveloperModel
+	
 	var title: String
 	var width: CGFloat?
 	var height: CGFloat?
@@ -101,7 +105,7 @@ struct horizontalCardView: View {
 	@State var showImage: Bool
 	@State var showPrices: Bool
 	
-	@ObservedObject var quote: QuoteModel
+	@ObservedObject var quote: QuoteBatchModel
 	@State var symbolName: [String]
 	@State var symbolTicker: [String]
 	@State var symbolImageName: [String]
@@ -158,7 +162,9 @@ struct horizontalCardView: View {
 
 									if self.quote.dataIsLoaded == false {
 										DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-											self.quote.getQuoteData(symbol: self.symbolTicker.joined(separator: ","), sandbox: true)
+											if self.quote.dataIsLoaded == false {
+												self.quote.getQuoteData(symbol: self.symbolTicker.joined(separator: ","), sandbox: self.developer.sandboxMode)
+											}
 										}
 									}
 							}

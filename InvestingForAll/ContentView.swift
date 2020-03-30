@@ -12,6 +12,8 @@ struct ContentView: View {
 	
 	@Environment(\.colorScheme) var colorScheme: ColorScheme
 	
+	@EnvironmentObject var developer: DeveloperModel
+	
 	@State var index: Int = 0
 	
 	@State var showSearch: Bool = false
@@ -41,7 +43,7 @@ struct ContentView: View {
 											
 											if value.translation.width > 0 && self.showSearch == true {
 												self.viewState.width = value.translation.width
-												print(value.translation.width)
+//												print(value.translation.width)
 											}
 											
 											if value.translation.width < 0 && self.showSearch == false {

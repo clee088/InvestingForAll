@@ -10,6 +10,10 @@ import SwiftUI
 
 struct SearchView: View {
 	
+	@Environment(\.colorScheme) var colorScheme: ColorScheme
+	
+	@EnvironmentObject var developer: DeveloperModel
+	
 	@State var ticker: String = ""
 	
 	@State private var searchResults: SupportedSymbols = []
@@ -17,6 +21,8 @@ struct SearchView: View {
 	@Binding var isPresented: Bool
 	
 	@State var presentStock: Bool = false
+	
+	@State private var selectedStock: SupportedSymbol?
 	
 	var body: some View {
 		
@@ -61,7 +67,7 @@ struct SearchView: View {
 						
 						Spacer()
 						
-						SearchBar(text: self.$ticker, searchResults: self.$searchResults)
+						SearchBar(text: self.$ticker, searchResults: self.$searchResults, isPresented: self.$isPresented)
 							.frame(width: geometry.size.width * 0.75)
 							.offset(x: geometry.size.width * -0.125, y: 0)
 					}
@@ -70,7 +76,9 @@ struct SearchView: View {
 					ScrollView(.vertical) {
 						if self.ticker != "" {
 							VStack {
-								ForEach(self.searchResults, id: \.self.symbol) { result in
+								
+								ForEach(self.searchResults, id: \.self.iexId) { result in
+									
 									ZStack {
 										HStack {
 											Text(result.symbol)
@@ -82,18 +90,19 @@ struct SearchView: View {
 											Spacer()
 										}
 										.padding(.horizontal)
-										.onTapGesture {
-											self.presentStock.toggle()
-										}
 									}
 									.frame(width: geometry.size.width * 0.9, height: geometry.size.height * 0.08, alignment: .center)
-									.background(Color("Card Light"))
+									.background(self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"))
 									.mask(RoundedRectangle(cornerRadius: 25))
 									.padding(.vertical)
-									.sheet(isPresented: self.$presentStock) {
-										StockView(companyName: result.name, symbol: result.symbol)
+									.onTapGesture {
+										self.selectedStock = result
+										self.presentStock.toggle()
 									}
 								}
+							}
+							.sheet(isPresented: self.$presentStock) {
+								StockView(companyName: self.selectedStock?.name ?? "", symbol: self.selectedStock?.symbol ?? "", image: LogoModel(symbol: self.selectedStock?.symbol ?? "", sandbox: self.developer.sandboxMode), quote: QuoteModel(symbol: self.selectedStock?.symbol ?? "", sandbox: true)).environmentObject(self.developer)
 							}
 						}
 					}
@@ -120,6 +129,7 @@ struct SearchBar: UIViewRepresentable {
 	
 	@Binding var text: String
 	@Binding var searchResults: SupportedSymbols
+	@Binding var isPresented: Bool
 	
 	class Coordinator: NSObject, UISearchBarDelegate {
 		
@@ -154,7 +164,7 @@ struct SearchBar: UIViewRepresentable {
 		}
 		
 		func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-			
+			searchBar.resignFirstResponder()
 		}
 		
 		func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -184,5 +194,8 @@ struct SearchBar: UIViewRepresentable {
 	
 	func updateUIView(_ uiView: UISearchBar, context: UIViewRepresentableContext<SearchBar>) {
 		uiView.text = text
+		if self.isPresented == false {
+			uiView.resignFirstResponder()
+		}
 	}
 }
