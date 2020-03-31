@@ -112,13 +112,9 @@ class LogoModel: ObservableObject {
 				
 				DispatchQueue.main.async {
 					
-					guard var imageURL: URL = URL(string: quoteData.url) else {
+					guard let imageURL: URL = URL(string: quoteData.url) else {
 						print("Unable to find image url")
 						return
-					}
-					
-					if sandbox == true {
-						imageURL = URL(string: "https://storage.googleapis.com/iexcloud-hl37opg/api/logos/ENPH.png")!
 					}
 					
 					print(imageURL)

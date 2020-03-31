@@ -126,6 +126,10 @@ struct ContentView: View {
 									EmptyView()
 								}
 									
+								if self.index == 4 {
+									SettingsView()
+								}
+									
 								else {
 									/*@START_MENU_TOKEN@*/EmptyView()/*@END_MENU_TOKEN@*/
 								}

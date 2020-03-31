@@ -102,7 +102,7 @@ struct SearchView: View {
 								}
 							}
 							.sheet(isPresented: self.$presentStock) {
-								StockView(companyName: self.selectedStock?.name ?? "", symbol: self.selectedStock?.symbol ?? "", image: LogoModel(symbol: self.selectedStock?.symbol ?? "", sandbox: self.developer.sandboxMode), quote: QuoteModel(symbol: self.selectedStock?.symbol ?? "", sandbox: true)).environmentObject(self.developer)
+								StockView(companyName: self.selectedStock?.name ?? "", symbol: self.selectedStock?.symbol ?? "", image: LogoModel(symbol: self.selectedStock?.symbol ?? "", sandbox: self.developer.sandboxMode), quote: QuoteModel(symbol: self.selectedStock?.symbol ?? "", sandbox: true), news: NewsModel(symbol: self.selectedStock?.symbol ?? "", sandbox: self.developer.sandboxMode)).environmentObject(self.developer)
 							}
 						}
 					}
