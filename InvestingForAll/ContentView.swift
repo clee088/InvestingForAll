@@ -117,7 +117,7 @@ struct ContentView: View {
 								
 								if self.index == 0 {
 									
-									OverviewView(overallWidth: geometry.size.width, overallHeight: geometry.size.height, width: geometry.size.width * 0.4, height: geometry.size.height * 0.25)
+									OverviewView()
 //										.frame(width: geometry.size.width)
 								}
 								
@@ -144,21 +144,39 @@ struct ContentView: View {
 						
 						Spacer()
 						
-						customTabView(index: self.$index, width: geometry.size.width, height: geometry.size.height * 0.09)
-							.background(self.colorScheme == .light ? Color.white : Color.black)
-							.clipped()
-							.shadow(color: self.colorScheme == .light ? Color("Shadow Light") : Color("Search Dark"), radius: 5, x: 0, y: -2)
+//						VStack {
+//
+//							Spacer()
+//						}
+//						.padding(.bottom)
+//						.clipShape(RoundedRectangle(cornerRadius: 25))
+//						.background(self.colorScheme == .light ? Color.white : Color.black)
+//						.frame(height: geometry.size.height * 0.1)
+//						.shadow(color: self.colorScheme == .light ? Color(.systemGray6) : Color("Search Dark"), radius: 8, x: 0, y: -2)
 						
 					}
-					.edgesIgnoringSafeArea(.bottom)
 				}
+				.edgesIgnoringSafeArea(.bottom)
 				.navigationBarTitle("")
 				.navigationBarHidden(true)
+				.overlay(
+					
+					VStack {
+						
+						Spacer()
+						
+						customTabView(index: self.$index, width: geometry.size.width, height: geometry.size.height * 0.1)
+					}
+//					.padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
+					.edgesIgnoringSafeArea(.bottom)
+					
+				)
 			}
 		}
 	}
 }
 
+//MARK: Previews
 struct ContentView_Previews: PreviewProvider {
 	static var previews: some View {
 		Group {
@@ -172,13 +190,13 @@ struct ContentView_Previews: PreviewProvider {
 			
 			ContentView()
 				.previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro"))
-				.previewDisplayName("iPhone 11 Pro")
+				.previewDisplayName("iPhone 11 Pro (Light Mode)")
 				.environment(\.colorScheme, .light)
 			
-			ContentView()
-				.previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro"))
-				.previewDisplayName("iPhone 11 Pro")
-				.environment(\.colorScheme, .dark)
+//			ContentView()
+//				.previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro"))
+//				.previewDisplayName("iPhone 11 Pro (Dark Mode)")
+//				.environment(\.colorScheme, .dark)
 		}
 	}
 }
@@ -186,6 +204,8 @@ struct ContentView_Previews: PreviewProvider {
 //MARK: Sub-views
 
 struct customTabView: View {
+	
+	@Environment(\.colorScheme) var colorScheme: ColorScheme
 	
 	@Binding var index: Int
 	
@@ -217,10 +237,13 @@ struct customTabView: View {
 				}
 				
 			}
-			.frame(width: self.width, height: self.height, alignment: .center)
-			.padding(.bottom)
+			.frame(height: self.height, alignment: .center)
 			
 		}
+		.padding(.bottom)
+		.background(self.colorScheme == .light ? Color.white : Color.black)
+		.clipShape(RoundedRectangle(cornerRadius: 35))
+		.shadow(color: self.colorScheme == .light ? Color(.systemGray4) : Color("Search Dark"), radius: 10, x: 0, y: 0)
 		
 	}
 	

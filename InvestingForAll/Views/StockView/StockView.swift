@@ -12,7 +12,11 @@ struct StockView: View {
 	
 	@Environment(\.colorScheme) var colorScheme: ColorScheme
 	
+	@Environment(\.managedObjectContext) var moc
+	
 	@EnvironmentObject var developer: DeveloperModel
+	
+	@Binding var isPresented: Bool
 	
 	@State var companyName: String
 	@State var symbol: String
@@ -83,32 +87,54 @@ struct StockView: View {
 				
 				VStack {
 					
-					HStack {
+					VStack {
+						HStack {
+							
+							VStack(alignment: .leading) {
+								HStack {
+									Image(uiImage: UIImage(data: self.image.imageData ?? Data()) ?? UIImage(systemName: "exclamationmark.triangle")!)
+										.resizable()
+										.frame(width: geometry.size.width * 0.1, height: geometry.size.width * 0.1, alignment: .center)
+										.mask(Circle())
+									
+									Text("\(self.symbol)")
+										.font(.title)
+										.fontWeight(.semibold)
+										.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
+									//									.bold()
+									
+									Spacer()
+									
+									Button(action: {
+										self.isPresented.toggle()
+									}) {
+										Image(systemName: "magnifyingglass")
+											.imageScale(.large)
+											.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
+										
+									}
+									
+								}
+								
+								Text("\(self.companyName)")
+									.font(.subheadline)
+									.fontWeight(.medium)
+									.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
+								//								.bold()
+							}
+							
+						}
+						.padding(.horizontal)
 						
-						Image(uiImage: UIImage(data: self.image.imageData ?? Data()) ?? UIImage(systemName: "exclamationmark.triangle")!)
-							.resizable()
-							.frame(width: geometry.size.width * 0.1, height: geometry.size.width * 0.1, alignment: .center)
-							.mask(Circle())
 						
-						Text("\(self.symbol)")
-							.font(.title)
-							.bold()
-						
-						Text("-")
-						
-						Text("\(self.companyName)")
-							.font(.subheadline)
-						
-						Spacer()
-					}
-					.padding(.horizontal)
-					
-					if self.quote.dataIsLoaded {
+						//					if self.quote.dataIsLoaded {
 						HStack {
 							
 							Text("$\(String(format: "%.2f", self.quote.quoteResult?.latestPrice ?? 32.38))")
 								.bold()
-								.font(.system(size: 22))
+								.font(.title)
+								.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
+							//								.font(.system(size: 22))
 							
 							VStack(alignment: .leading) {
 								
@@ -138,40 +164,45 @@ struct StockView: View {
 										.imageScale(.medium)
 										.rotationEffect(.degrees(self.showStatistics ? -180 : 0))
 								}
+								.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
 							}
 							
 							
 						}
 						.padding(.horizontal)
-					} else {
-						Text("Unavailable... Reloading")
-							.bold()
-							.padding()
-							.onAppear() {
-								
-								if self.news.dataIsLoaded == false {
-									DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-										if self.news.dataIsLoaded == false {
-											self.news.getNewsData(symbol: self.symbol, sandbox: self.developer.sandboxMode)
-										}
-									}
-								}
-								
-								if self.quote.dataIsLoaded == false {
-									DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-										if self.quote.dataIsLoaded == false {
-											self.quote.getData(symbol: self.symbol, sandbox: self.developer.sandboxMode)
-										}
-									}
-								}
-						}
+						//					} else {
+						//						Text("Unavailable... Reloading")
+						//							.bold()
+						//							.padding()
+						//							.onAppear() {
+						//
+						//								if self.news.dataIsLoaded == false {
+						//									DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+						//										if self.news.dataIsLoaded == false {
+						//											self.news.getNewsData(symbol: self.symbol, sandbox: self.developer.sandboxMode)
+						//										}
+						//									}
+						//								}
+						//
+						//								if self.quote.dataIsLoaded == false {
+						//									DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+						//										if self.quote.dataIsLoaded == false {
+						//											self.quote.getData(symbol: self.symbol, sandbox: self.developer.sandboxMode)
+						//										}
+						//									}
+						//								}
+						//						}
+						//					}
+						
 					}
+					.padding(.top)
 					
-					ScrollView(.vertical) {
+					ZStack {
+						
+						ScrollView(.vertical) {
 							VStack {
 								
 								if self.showStatistics {
-									
 									
 									ZStack {
 										
@@ -281,12 +312,15 @@ struct StockView: View {
 								
 								Spacer(minLength: geometry.size.height * 0.02)
 								
-								StockChart(candle: CandlesModel(symbol: self.symbol, interval: "D", from: 1583055000, to: 1584115200), width: geometry.size.width * 0.9, height: geometry.size.height * 0.3)
+								//								StockChart(candle: CandlesModel(symbol: self.symbol, interval: "D", from: 1583055000, to: 1584115200), width: geometry.size.width * 0.9, height: geometry.size.height * 0.3)
+								RoundedRectangle(cornerRadius: 25)
+									.fill(self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"))
 									.frame(height: geometry.size.height * 0.3, alignment: .center)
 									.animation(.spring())
+									.shadow(color: self.colorScheme == .light ? Color("Shadow Light") : Color("Search Dark"), radius: 5, x: 0, y: 5)
 								
-								Spacer(minLength: geometry.size.height * 0.02)
-
+								Spacer(minLength: geometry.size.height * 0.05)
+								
 								NewsView(height: geometry.size.height, news: self.news, showNewsArticle: self.$showNewsArticle)
 									.frame(height: geometry.size.height * 0.4, alignment: .center)
 									.padding()
@@ -295,14 +329,26 @@ struct StockView: View {
 									.shadow(color: self.colorScheme == .light ? Color("Shadow Light") : Color("Search Dark"), radius: 5, x: 0, y: 5)
 									.animation(.spring())
 								
+								Spacer(minLength: geometry.size.height * 0.1)
+								
 							}
 							.padding(.horizontal)
+							
+						}
+						.background(Color.white)
+						.clipShape(RoundedRectangle(cornerRadius: 40))
+						
+						
+						
 					}
+//					.edgesIgnoringSafeArea(.vertical)
+					
 				}
+				.background(Color("Search Dark"))
+				.edgesIgnoringSafeArea(.vertical)
 				
 			}
 		}
-		.padding(.vertical)
 	}
 	
 }
@@ -310,7 +356,7 @@ struct StockView: View {
 //MARK: Previews
 struct StockView_Previews: PreviewProvider {
 	static var previews: some View {
-		StockView(companyName: "Enphase Energy", symbol: "ENPH", image: LogoModel(symbol: "ENPH", sandbox: true), quote: QuoteModel(symbol: "ENPH", sandbox: true), news: NewsModel(symbol: "ENPH", sandbox: true))
+		StockView(isPresented: .constant(true), companyName: "Enphase Energy", symbol: "ENPH", image: LogoModel(symbol: "ENPH", sandbox: true), quote: QuoteModel(symbol: "ENPH", sandbox: true), news: NewsModel(symbol: "ENPH", sandbox: true))
 	}
 }
 
@@ -456,13 +502,14 @@ struct NewsRow: View {
 							.bold()
 							.lineLimit(nil)
 							.multilineTextAlignment(.leading)
-
+						
 						Spacer()
 						
 						Image(uiImage: (UIImage(data: self.displayImage()) ?? UIImage(systemName: "exclamationmark.triangle"))!)
 							.resizable()
 							.aspectRatio(contentMode: .fit)
-	//						.frame(width: geometry.size.width * 0.3, height: geometry.size.width * 0.3, alignment: .center)
+							.frame(minWidth: geometry.size.width * 0.2, minHeight: geometry.size.width * 0.2)
+						//						.frame(width: geometry.size.width * 0.3, height: geometry.size.width * 0.3, alignment: .center)
 						
 					}
 					

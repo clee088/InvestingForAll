@@ -12,6 +12,8 @@ struct SearchView: View {
 	
 	@Environment(\.colorScheme) var colorScheme: ColorScheme
 	
+	@Environment(\.managedObjectContext) var moc
+	
 	@EnvironmentObject var developer: DeveloperModel
 	
 	@State var ticker: String = ""
@@ -72,7 +74,6 @@ struct SearchView: View {
 							.offset(x: geometry.size.width * -0.125, y: 0)
 					}
 					
-					
 					ScrollView(.vertical) {
 						if self.ticker != "" {
 							VStack {
@@ -102,10 +103,13 @@ struct SearchView: View {
 								}
 							}
 							.sheet(isPresented: self.$presentStock) {
-								StockView(companyName: self.selectedStock?.name ?? "", symbol: self.selectedStock?.symbol ?? "", image: LogoModel(symbol: self.selectedStock?.symbol ?? "", sandbox: self.developer.sandboxMode), quote: QuoteModel(symbol: self.selectedStock?.symbol ?? "", sandbox: true), news: NewsModel(symbol: self.selectedStock?.symbol ?? "", sandbox: self.developer.sandboxMode)).environmentObject(self.developer)
+								StockView(isPresented: self.$presentStock, companyName: self.selectedStock?.name ?? "", symbol: self.selectedStock?.symbol ?? "", image: LogoModel(symbol: self.selectedStock?.symbol ?? "", sandbox: self.developer.sandboxMode), quote: QuoteModel(symbol: self.selectedStock?.symbol ?? "", sandbox: true), news: NewsModel(symbol: self.selectedStock?.symbol ?? "", sandbox: self.developer.sandboxMode))
+									.environmentObject(self.developer)
+									.environment(\.managedObjectContext, self.moc)
 							}
 						}
 					}
+					
 					
 					Spacer()
 					
