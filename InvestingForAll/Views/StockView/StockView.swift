@@ -100,7 +100,7 @@ struct StockView: View {
 									Text("\(self.symbol)")
 										.font(.title)
 										.fontWeight(.semibold)
-										.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
+										.foregroundColor(Color.white)
 									//									.bold()
 									
 									Spacer()
@@ -110,7 +110,7 @@ struct StockView: View {
 									}) {
 										Image(systemName: "magnifyingglass")
 											.imageScale(.large)
-											.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
+											.foregroundColor(Color.white)
 										
 									}
 									
@@ -119,7 +119,7 @@ struct StockView: View {
 								Text("\(self.companyName)")
 									.font(.subheadline)
 									.fontWeight(.medium)
-									.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
+									.foregroundColor(Color.white)
 								//								.bold()
 							}
 							
@@ -133,7 +133,7 @@ struct StockView: View {
 							Text("$\(String(format: "%.2f", self.quote.quoteResult?.latestPrice ?? 32.38))")
 								.bold()
 								.font(.title)
-								.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
+								.foregroundColor(Color.white)
 							//								.font(.system(size: 22))
 							
 							VStack(alignment: .leading) {
@@ -164,7 +164,7 @@ struct StockView: View {
 										.imageScale(.medium)
 										.rotationEffect(.degrees(self.showStatistics ? -180 : 0))
 								}
-								.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
+								.foregroundColor(Color.white)
 							}
 							
 							
@@ -314,37 +314,38 @@ struct StockView: View {
 								
 								//								StockChart(candle: CandlesModel(symbol: self.symbol, interval: "D", from: 1583055000, to: 1584115200), width: geometry.size.width * 0.9, height: geometry.size.height * 0.3)
 								RoundedRectangle(cornerRadius: 25)
-									.fill(self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"))
+									.fill(Color("Stock View Card"))
 									.frame(height: geometry.size.height * 0.3, alignment: .center)
 									.animation(.spring())
-									.shadow(color: self.colorScheme == .light ? Color("Shadow Light") : Color("Search Dark"), radius: 5, x: 0, y: 5)
+									.shadow(color: Color("Card Shadow"), radius: 5, x: 0, y: 5)
 								
 								Spacer(minLength: geometry.size.height * 0.05)
 								
 								NewsView(height: geometry.size.height, news: self.news, showNewsArticle: self.$showNewsArticle)
 									.frame(height: geometry.size.height * 0.4, alignment: .center)
 									.padding()
-									.background(self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"))
+									.background(Color("Stock View Card"))
 									.mask(RoundedRectangle(cornerRadius: 25))
-									.shadow(color: self.colorScheme == .light ? Color("Shadow Light") : Color("Search Dark"), radius: 5, x: 0, y: 5)
+									.shadow(color: Color("Card Shadow"), radius: 5, x: 0, y: 5)
 									.animation(.spring())
 								
-								Spacer(minLength: geometry.size.height * 0.1)
+								Spacer(minLength: geometry.size.height * 0.15)
 								
 							}
 							.padding(.horizontal)
 							
 						}
-						.background(Color.white)
+						.background(Color("Stock View Background"))
 						.clipShape(RoundedRectangle(cornerRadius: 40))
 						
-						
+						AddButtonView()
+							.padding(.bottom)
 						
 					}
 //					.edgesIgnoringSafeArea(.vertical)
 					
 				}
-				.background(Color("Search Dark"))
+				.background(LinearGradient(gradient: Gradient(colors: [Color("Header Light"), Color("Header Dark")]), startPoint: .leading, endPoint: .trailing))
 				.edgesIgnoringSafeArea(.vertical)
 				
 			}

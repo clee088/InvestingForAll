@@ -241,9 +241,9 @@ struct customTabView: View {
 			
 		}
 		.padding(.bottom)
-		.background(self.colorScheme == .light ? Color.white : Color.black)
+		.background(Color("Tab Background"))
 		.clipShape(RoundedRectangle(cornerRadius: 35))
-		.shadow(color: self.colorScheme == .light ? Color(.systemGray4) : Color("Search Dark"), radius: 10, x: 0, y: 0)
+		.shadow(color: Color("Tab Shadow"), radius: 10, x: 0, y: 0)
 		
 	}
 	

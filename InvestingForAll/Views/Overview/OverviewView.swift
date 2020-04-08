@@ -58,9 +58,11 @@ struct OverviewView: View {
 					
 					VStack {
 						
-						horizontalCardView(title: "Sectors", width: geometry.size.width * 0.4, height: geometry.size.height * 0.26, color: self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"), shadowColor: self.colorScheme == .light ? Color("Shadow Light") : Color("Shadow Dark"), showImage: true, showPrices: false, quote: QuoteBatchModel(symbol: sectorTickers.joined(separator: ","), sandbox: self.developer.sandboxMode), symbolName: sectorName, symbolTicker: sectorTickers, symbolImageName: sectorImage)
+						horizontalCardView(title: "Sectors", width: geometry.size.width * 0.4, height: geometry.size.height * 0.26, color: Color("Card Background"), shadowColor: Color("Card Shadow"), showImage: true, showPrices: false, quote: QuoteBatchModel(symbol: sectorTickers.joined(separator: ","), sandbox: self.developer.sandboxMode), symbolName: sectorName, symbolTicker: sectorTickers, symbolImageName: sectorImage)
+//							.background(Color("Card View Background"))
 											
-						horizontalCardView(title: "Indices", width: geometry.size.width * 0.4, height: geometry.size.height * 0.26, color: self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"), shadowColor: self.colorScheme == .light ? Color("Shadow Light") : Color("Shadow Dark"), showImage: true, showPrices: true, quote: QuoteBatchModel(symbol: indexTickers.joined(separator: ","), sandbox: self.developer.sandboxMode), symbolName: indexName, symbolTicker: indexTickers, symbolImageName: indexImage)
+						horizontalCardView(title: "Indices", width: geometry.size.width * 0.4, height: geometry.size.height * 0.26, color: Color("Card Background"), shadowColor: Color("Card Shadow"), showImage: true, showPrices: true, quote: QuoteBatchModel(symbol: indexTickers.joined(separator: ","), sandbox: self.developer.sandboxMode), symbolName: indexName, symbolTicker: indexTickers, symbolImageName: indexImage)
+//							.background(Color("Card View Background"))
 							
 						watchlistView()
 							.padding()
@@ -71,6 +73,7 @@ struct OverviewView: View {
 					}
 				}
 			}
+//			.background(Color(.))
 		}
 	}
 }
@@ -153,7 +156,7 @@ struct watchlistView: View {
 									
 								}
 								.padding()
-								.background(Color("Card Light"))
+								.background(Color("Card Background"))
 								.clipShape(RoundedRectangle(cornerRadius: 20))
 								
 							}
@@ -184,6 +187,7 @@ struct horizontalCardView: View {
 	var width: CGFloat?
 	var height: CGFloat?
 	var color: Color
+	var linearGradient: LinearGradient?
 	var shadowColor: Color
 	
 	@State var showImage: Bool
@@ -275,6 +279,7 @@ struct HCardView: View {
 	var width: CGFloat?
 	var height: CGFloat?
 	var color: Color
+	var linearGradient: LinearGradient?
 	var shadowColor: Color
 	
 	@Binding var showImage: Bool
@@ -378,7 +383,7 @@ struct HCardView: View {
 		.mask(RoundedRectangle(cornerRadius: 25))
 		.frame(width: self.width, height: self.height, alignment: .center)
 		.clipped()
-		.shadow(color: self.shadowColor, radius: 8, x: 0, y: 7)
+		.shadow(color: self.shadowColor, radius: 5)
 		.padding(.bottom)
 		.padding(EdgeInsets(top: 0, leading: (self.width ?? 0) * 0.08, bottom: 0, trailing: (self.width ?? 0) * 0.08))
 		

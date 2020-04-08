@@ -93,7 +93,7 @@ struct SearchView: View {
 										.padding(.horizontal)
 									}
 									.frame(width: geometry.size.width * 0.9, height: geometry.size.height * 0.08, alignment: .center)
-									.background(self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"))
+									.background(Color("Card Background"))
 									.mask(RoundedRectangle(cornerRadius: 25))
 									.padding(.vertical)
 									.onTapGesture {
