@@ -82,9 +82,9 @@ struct StockView: View {
 		
 		numberFormatter.numberStyle = .decimal
 		
-		return ZStack {
-			GeometryReader { geometry in
+		return GeometryReader { geometry in
 				
+			ZStack {
 				VStack {
 					
 					VStack {
@@ -167,7 +167,6 @@ struct StockView: View {
 								.foregroundColor(Color.white)
 							}
 							
-							
 						}
 						.padding(.horizontal)
 						//					} else {
@@ -197,159 +196,151 @@ struct StockView: View {
 					}
 					.padding(.top)
 					
-					ZStack {
-						
-						ScrollView(.vertical) {
-							VStack {
+					ScrollView(.vertical) {
+						VStack {
+							
+							if self.showStatistics {
 								
-								if self.showStatistics {
+								VStack(alignment: .leading) {
 									
-									ZStack {
-										
+									HStack {
 										VStack(alignment: .leading) {
+											Text("Market Cap:")
+												.font(.subheadline)
 											
-											HStack {
-												VStack(alignment: .leading) {
-													Text("Market Cap:")
-														.font(.subheadline)
-													
-													Text(self.roundedNumberString(number: Double(self.quote.quoteResult?.marketCap ?? 3990000000)))
-														.font(.subheadline)
-														.bold()
-													
-													Spacer()
-												}
-												
-												Spacer()
-												
-												VStack(alignment: .trailing) {
-													Text("Prev Close/Open:")
-														.font(.subheadline)
-													
-													
-													Text("\(String(format: "%.2f", self.quote.quoteResult?.previousClose ?? 36.13))/\(String(format: "%.2f", self.quote.quoteResult?.open ?? 34.05))")
-														.font(.subheadline)
-														.bold()
-													
-													Spacer()
-												}
-											}
-											
-											HStack {
-												VStack(alignment: .leading) {
-													Text("Volume:")
-														.font(.subheadline)
-													
-													
-													Text(self.roundedNumberString(number: self.quote.quoteResult?.volume ?? 5000000))
-														.font(.subheadline)
-														.bold()
-													
-													
-													Spacer()
-												}
-												
-												Spacer()
-												
-												VStack(alignment: .trailing) {
-													Text("Day's Range:")
-														.font(.subheadline)
-													
-													
-													Text("\(String(format: "%.2f", self.quote.quoteResult?.low ?? 31.27)) - \(String(format: "%.2f", self.quote.quoteResult?.high ?? 34.49))")
-														.font(.subheadline)
-														.bold()
-													
-													
-													Spacer()
-												}
-												
-											}
-											
-											HStack {
-												VStack(alignment: .leading) {
-													Text("PE Ratio:")
-														.font(.subheadline)
-													
-													
-													Text(String(self.quote.quoteResult?.peRatio ?? 26.65))
-														.font(.subheadline)
-														.bold()
-													
-													
-													Spacer()
-												}
-												
-												Spacer()
-												
-												VStack(alignment: .trailing) {
-													Text("52 Week Range:")
-														.font(.subheadline)
-													
-													
-													Text("\(String(format: "%.2f", self.quote.quoteResult?.week52Low ?? 9.06)) - \(String(format: "%.2f", self.quote.quoteResult?.week52High ?? 59.15))")
-														.font(.subheadline)
-														.bold()
-													
-													
-													Spacer()
-												}
-											}
+											Text(self.roundedNumberString(number: Double(self.quote.quoteResult?.marketCap ?? 3990000000)))
+												.font(.subheadline)
+												.bold()
 											
 											Spacer()
 										}
-										.padding()
+										
+										Spacer()
+										
+										VStack(alignment: .trailing) {
+											Text("Prev Close/Open:")
+												.font(.subheadline)
+											
+											
+											Text("\(String(format: "%.2f", self.quote.quoteResult?.previousClose ?? 36.13))/\(String(format: "%.2f", self.quote.quoteResult?.open ?? 34.05))")
+												.font(.subheadline)
+												.bold()
+											
+											Spacer()
+										}
 									}
-									.padding(.top)
-									.frame(minWidth: geometry.size.width * 0.9, maxHeight: geometry.size.height * 0.2)
-									.transition(.move(edge: .top))
-									.background(self.colorScheme == .light ? Color("Card Light") : Color("Card Dark"))
-									.mask(RoundedRectangle(cornerRadius: 25))
-									.shadow(color: self.colorScheme == .light ? Color("Shadow Light") : Color("Search Dark"), radius: 5, x: 0, y: 5)
 									
+									HStack {
+										VStack(alignment: .leading) {
+											Text("Volume:")
+												.font(.subheadline)
+											
+											
+											Text(self.roundedNumberString(number: self.quote.quoteResult?.volume ?? 5000000))
+												.font(.subheadline)
+												.bold()
+											
+											
+											Spacer()
+										}
+										
+										Spacer()
+										
+										VStack(alignment: .trailing) {
+											Text("Day's Range:")
+												.font(.subheadline)
+											
+											
+											Text("\(String(format: "%.2f", self.quote.quoteResult?.low ?? 31.27)) - \(String(format: "%.2f", self.quote.quoteResult?.high ?? 34.49))")
+												.font(.subheadline)
+												.bold()
+											
+											
+											Spacer()
+										}
+										
+									}
+									
+									HStack {
+										VStack(alignment: .leading) {
+											Text("PE Ratio:")
+												.font(.subheadline)
+											
+											
+											Text(String(self.quote.quoteResult?.peRatio ?? 26.65))
+												.font(.subheadline)
+												.bold()
+											
+											
+											Spacer()
+										}
+										
+										Spacer()
+										
+										VStack(alignment: .trailing) {
+											Text("52 Week Range:")
+												.font(.subheadline)
+											
+											
+											Text("\(String(format: "%.2f", self.quote.quoteResult?.week52Low ?? 9.06)) - \(String(format: "%.2f", self.quote.quoteResult?.week52High ?? 59.15))")
+												.font(.subheadline)
+												.bold()
+											
+											
+											Spacer()
+										}
+									}
 									
 								}
+								.padding()
+								.frame(minWidth: geometry.size.width * 0.9, maxHeight: geometry.size.height * 0.2)
+								.transition(.move(edge: .top))
+								.background(Color("Stock View Card"))
+								.mask(RoundedRectangle(cornerRadius: 25))
+								.shadow(color: Color("Card Shadow"), radius: 5, x: 0, y: 5)
 								
 								Spacer(minLength: geometry.size.height * 0.02)
 								
-								//								StockChart(candle: CandlesModel(symbol: self.symbol, interval: "D", from: 1583055000, to: 1584115200), width: geometry.size.width * 0.9, height: geometry.size.height * 0.3)
-								RoundedRectangle(cornerRadius: 25)
-									.fill(Color("Stock View Card"))
-									.frame(height: geometry.size.height * 0.3, alignment: .center)
-									.animation(.spring())
-									.shadow(color: Color("Card Shadow"), radius: 5, x: 0, y: 5)
-								
-								Spacer(minLength: geometry.size.height * 0.05)
-								
-								NewsView(height: geometry.size.height, news: self.news, showNewsArticle: self.$showNewsArticle)
-									.frame(height: geometry.size.height * 0.4, alignment: .center)
-									.padding()
-									.background(Color("Stock View Card"))
-									.mask(RoundedRectangle(cornerRadius: 25))
-									.shadow(color: Color("Card Shadow"), radius: 5, x: 0, y: 5)
-									.animation(.spring())
-								
-								Spacer(minLength: geometry.size.height * 0.15)
-								
 							}
-							.padding(.horizontal)
+							//								StockChart(candle: CandlesModel(symbol: self.symbol, interval: "D", from: 1583055000, to: 1584115200), width: geometry.size.width * 0.9, height: geometry.size.height * 0.3)
+							RoundedRectangle(cornerRadius: 25)
+								.fill(Color("Stock View Card"))
+								.frame(height: geometry.size.height * 0.3, alignment: .center)
+								.animation(.spring())
+								.shadow(color: Color("Card Shadow"), radius: 5, x: 0, y: 5)
+							
+							Spacer(minLength: geometry.size.height * 0.05)
+							
+							NewsView(height: geometry.size.height, news: self.news, showNewsArticle: self.$showNewsArticle)
+								.frame(height: geometry.size.height * 0.4, alignment: .center)
+								.padding()
+								.background(Color("Stock View Card"))
+								.mask(RoundedRectangle(cornerRadius: 25))
+								.shadow(color: Color("Card Shadow"), radius: 5, x: 0, y: 5)
+								.animation(.spring())
+							
+							Spacer(minLength: geometry.size.height * 0.15)
 							
 						}
-						.background(Color("Stock View Background"))
-						.clipShape(RoundedRectangle(cornerRadius: 40))
-						
-						AddButtonView()
-							.padding(.bottom)
+						.padding()
 						
 					}
-//					.edgesIgnoringSafeArea(.vertical)
+					.background(Color("Stock View Background"))
+					.clipShape(RoundedRectangle(cornerRadius: 40))
+					.edgesIgnoringSafeArea(.bottom)
+					//					.edgesIgnoringSafeArea(.vertical)
 					
 				}
+//				.padding(.top)
 				.background(LinearGradient(gradient: Gradient(colors: [Color("Header Light"), Color("Header Dark")]), startPoint: .leading, endPoint: .trailing))
-				.edgesIgnoringSafeArea(.vertical)
+				.edgesIgnoringSafeArea(.top)
+				
+				FloatingButtonView()
 				
 			}
+			
 		}
+		
 	}
 	
 }
@@ -360,6 +351,139 @@ struct StockView_Previews: PreviewProvider {
 		StockView(isPresented: .constant(true), companyName: "Enphase Energy", symbol: "ENPH", image: LogoModel(symbol: "ENPH", sandbox: true), quote: QuoteModel(symbol: "ENPH", sandbox: true), news: NewsModel(symbol: "ENPH", sandbox: true))
 	}
 }
+
+////MARK: Floating Button
+//struct AddButtonView: View {
+//
+//	@Environment(\.colorScheme) var colorScheme: ColorScheme
+//
+//	@State var showMenu: Bool = false
+//
+//	@State private var response: Double = 0.3
+//	@State private var dampingFraction: Double = 0.6
+//	@State private var blendDuration: Double = 0.3
+//
+//	private var size: CGFloat = 0.2
+//
+//	private var offset: CGFloat = 0.4
+//
+//	var body: some View {
+//		GeometryReader { geometry in
+//
+//
+//
+//			VStack {
+//				Spacer()
+//
+//				HStack {
+//					Spacer()
+//
+//					ZStack {
+//
+//						Circle()
+//							.fill(Color("Floating Menu Background"))
+//							.frame(width: geometry.size.width * 0.74, height: geometry.size.width * 0.74, alignment: .center)
+//						//								.shadow(color: Color("Card Dark"), radius: 8)
+//
+//						Group {
+//
+//							ZStack {
+//								Circle()
+//									.fill(Color("Floating Action"))
+//									.frame(width: geometry.size.width * 0.14, height: geometry.size.width * 0.14, alignment: .center)
+//
+//								Image(systemName: "square.and.arrow.up")
+//									.resizable()
+//									.aspectRatio(contentMode: .fit)
+//									.padding()
+//
+//							}
+//							.frame(width: geometry.size.width * 0.14, height: geometry.size.width * 0.14, alignment: .center)
+//							.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
+//							.clipShape(Circle())
+//							.shadow(color: Color("Floating Action"), radius: 5)
+//							.offset(x: geometry.size.width * -0.01, y: geometry.size.width * -0.24)
+//
+//							ZStack {
+//								Circle()
+//									.fill(Color("Floating Action"))
+//									.frame(width: geometry.size.width * 0.14, height: geometry.size.width * 0.14, alignment: .center)
+//
+//								Image(systemName: "creditcard")
+//									.resizable()
+//									.aspectRatio(contentMode: .fit)
+//									.padding()
+//
+//							}
+//							.frame(width: geometry.size.width * 0.14, height: geometry.size.width * 0.14, alignment: .center)
+//							.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
+//							.clipShape(Circle())
+//							.shadow(color: Color("Floating Action"), radius: 5)
+//							.offset(x: geometry.size.width * -0.16, y: geometry.size.width * -0.16)
+//
+//							ZStack {
+//								Circle()
+//									.fill(Color("Floating Action"))
+//
+//								Image(systemName: "star")
+//									.resizable()
+//									.aspectRatio(contentMode: .fit)
+//									.padding()
+//
+//							}
+//							.frame(width: geometry.size.width * 0.14, height: geometry.size.width * 0.14, alignment: .center)
+//							.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
+//							.clipShape(Circle())
+//							.shadow(color: Color("Floating Action"), radius: 5)
+//							.offset(x: geometry.size.width * -0.24, y: geometry.size.width * -0.01)
+//						}
+//
+//					}
+//					.scaleEffect(self.showMenu ? 1 : 0)
+//					.clipShape(Circle())
+//					.offset(x: geometry.size.width * 0.3, y: geometry.size.width * 0.3)
+//					.shadow(color: Color("Floating Menu Background"), radius: 8)
+//
+//				}
+//			}
+//			.padding(.horizontal)
+//
+//			VStack {
+//				Spacer()
+//
+//				HStack {
+//					Spacer()
+//
+//					ZStack {
+//						Circle()
+//							.fill(LinearGradient(gradient: Gradient(colors: [Color("Floating Button Light"), Color("Floating Button Dark")]), startPoint: .topLeading, endPoint: .bottomTrailing))
+//							.frame(width: geometry.size.width * 0.16, height: geometry.size.width * 0.16, alignment: .center)
+//
+//						Image(systemName: "plus")
+//							.resizable()
+//							.aspectRatio(contentMode: .fit)
+//							.frame(width: geometry.size.width * 0.1, height: geometry.size.width * 0.1, alignment: .center)
+//
+//					}
+//					.foregroundColor(Color.white)
+//					.rotationEffect(.degrees(self.showMenu ? 135 : 0))
+//					.onTapGesture {
+//						withAnimation(.interactiveSpring(response: self.response, dampingFraction: self.dampingFraction, blendDuration: self.blendDuration)) {
+//							self.showMenu.toggle()
+//						}
+//					}
+//					.clipShape(Circle())
+//					.shadow(color: Color("Floating Button Light"), radius: 5)
+//					.scaleEffect(self.showMenu ? 1.2 : 1)
+//
+//				}
+//			}
+//			.padding(.horizontal)
+//
+//		}
+//
+//	}
+//}
 
 //MARK: Stock Chart
 struct StockChart: View {
@@ -509,7 +633,7 @@ struct NewsRow: View {
 						Image(uiImage: (UIImage(data: self.displayImage()) ?? UIImage(systemName: "exclamationmark.triangle"))!)
 							.resizable()
 							.aspectRatio(contentMode: .fit)
-							.frame(minWidth: geometry.size.width * 0.2, minHeight: geometry.size.width * 0.2)
+//							.frame(maxHeight: geometry.size.width * 0.4)
 						//						.frame(width: geometry.size.width * 0.3, height: geometry.size.width * 0.3, alignment: .center)
 						
 					}
