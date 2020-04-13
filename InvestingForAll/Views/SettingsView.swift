@@ -23,6 +23,7 @@ struct SettingsView: View {
 			Spacer()
 		}
 		.padding()
+		.animation(.spring())
     }
 }
 

@@ -28,7 +28,9 @@ struct StockView: View {
 	@State var showStatistics: Bool = false
 	@State var showNewsArticle: Bool = false
 	
-	let numberFormatter = NumberFormatter()
+	@State var showTradeMenu: Bool = false
+	
+	@State var viewState: CGSize = .zero
 	
 	private func roundedNumberString(number: Double) -> String {
 		
@@ -79,8 +81,6 @@ struct StockView: View {
 	}
 	
 	var body: some View {
-		
-		numberFormatter.numberStyle = .decimal
 		
 		return GeometryReader { geometry in
 				
@@ -151,9 +151,9 @@ struct StockView: View {
 							Spacer()
 							
 							Button(action: {
-								withAnimation(.spring()) {
+//								withAnimation(.spring()) {
 									self.showStatistics.toggle()
-								}
+//								}
 							}) {
 								HStack {
 									
@@ -294,7 +294,8 @@ struct StockView: View {
 								}
 								.padding()
 								.frame(minWidth: geometry.size.width * 0.9, maxHeight: geometry.size.height * 0.2)
-								.transition(.move(edge: .top))
+								.animation(.spring())
+								.transition(AnyTransition.move(edge: .top).combined(with: .opacity))
 								.background(Color("Stock View Card"))
 								.mask(RoundedRectangle(cornerRadius: 25))
 								.shadow(color: Color("Card Shadow"), radius: 5, x: 0, y: 5)
@@ -322,6 +323,7 @@ struct StockView: View {
 							Spacer(minLength: geometry.size.height * 0.15)
 							
 						}
+						.animation(.spring())
 						.padding()
 						
 					}
@@ -335,7 +337,10 @@ struct StockView: View {
 				.background(LinearGradient(gradient: Gradient(colors: [Color("Header Light"), Color("Header Dark")]), startPoint: .leading, endPoint: .trailing))
 				.edgesIgnoringSafeArea(.top)
 				
-				FloatingButtonView()
+				FloatingButton(showTradeMenu: self.$showTradeMenu, viewState: self.$viewState).environment(\.colorScheme, self.colorScheme)
+				
+				TradeMenu(quote: self.quote, showTradeMenu: self.$showTradeMenu, symbol: self.$symbol, companyName: self.$companyName, viewState: self.$viewState)
+					.environment(\.managedObjectContext, self.moc)
 				
 			}
 			
@@ -351,139 +356,6 @@ struct StockView_Previews: PreviewProvider {
 		StockView(isPresented: .constant(true), companyName: "Enphase Energy", symbol: "ENPH", image: LogoModel(symbol: "ENPH", sandbox: true), quote: QuoteModel(symbol: "ENPH", sandbox: true), news: NewsModel(symbol: "ENPH", sandbox: true))
 	}
 }
-
-////MARK: Floating Button
-//struct AddButtonView: View {
-//
-//	@Environment(\.colorScheme) var colorScheme: ColorScheme
-//
-//	@State var showMenu: Bool = false
-//
-//	@State private var response: Double = 0.3
-//	@State private var dampingFraction: Double = 0.6
-//	@State private var blendDuration: Double = 0.3
-//
-//	private var size: CGFloat = 0.2
-//
-//	private var offset: CGFloat = 0.4
-//
-//	var body: some View {
-//		GeometryReader { geometry in
-//
-//
-//
-//			VStack {
-//				Spacer()
-//
-//				HStack {
-//					Spacer()
-//
-//					ZStack {
-//
-//						Circle()
-//							.fill(Color("Floating Menu Background"))
-//							.frame(width: geometry.size.width * 0.74, height: geometry.size.width * 0.74, alignment: .center)
-//						//								.shadow(color: Color("Card Dark"), radius: 8)
-//
-//						Group {
-//
-//							ZStack {
-//								Circle()
-//									.fill(Color("Floating Action"))
-//									.frame(width: geometry.size.width * 0.14, height: geometry.size.width * 0.14, alignment: .center)
-//
-//								Image(systemName: "square.and.arrow.up")
-//									.resizable()
-//									.aspectRatio(contentMode: .fit)
-//									.padding()
-//
-//							}
-//							.frame(width: geometry.size.width * 0.14, height: geometry.size.width * 0.14, alignment: .center)
-//							.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
-//							.clipShape(Circle())
-//							.shadow(color: Color("Floating Action"), radius: 5)
-//							.offset(x: geometry.size.width * -0.01, y: geometry.size.width * -0.24)
-//
-//							ZStack {
-//								Circle()
-//									.fill(Color("Floating Action"))
-//									.frame(width: geometry.size.width * 0.14, height: geometry.size.width * 0.14, alignment: .center)
-//
-//								Image(systemName: "creditcard")
-//									.resizable()
-//									.aspectRatio(contentMode: .fit)
-//									.padding()
-//
-//							}
-//							.frame(width: geometry.size.width * 0.14, height: geometry.size.width * 0.14, alignment: .center)
-//							.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
-//							.clipShape(Circle())
-//							.shadow(color: Color("Floating Action"), radius: 5)
-//							.offset(x: geometry.size.width * -0.16, y: geometry.size.width * -0.16)
-//
-//							ZStack {
-//								Circle()
-//									.fill(Color("Floating Action"))
-//
-//								Image(systemName: "star")
-//									.resizable()
-//									.aspectRatio(contentMode: .fit)
-//									.padding()
-//
-//							}
-//							.frame(width: geometry.size.width * 0.14, height: geometry.size.width * 0.14, alignment: .center)
-//							.foregroundColor(self.colorScheme == .light ? Color.white : Color.black)
-//							.clipShape(Circle())
-//							.shadow(color: Color("Floating Action"), radius: 5)
-//							.offset(x: geometry.size.width * -0.24, y: geometry.size.width * -0.01)
-//						}
-//
-//					}
-//					.scaleEffect(self.showMenu ? 1 : 0)
-//					.clipShape(Circle())
-//					.offset(x: geometry.size.width * 0.3, y: geometry.size.width * 0.3)
-//					.shadow(color: Color("Floating Menu Background"), radius: 8)
-//
-//				}
-//			}
-//			.padding(.horizontal)
-//
-//			VStack {
-//				Spacer()
-//
-//				HStack {
-//					Spacer()
-//
-//					ZStack {
-//						Circle()
-//							.fill(LinearGradient(gradient: Gradient(colors: [Color("Floating Button Light"), Color("Floating Button Dark")]), startPoint: .topLeading, endPoint: .bottomTrailing))
-//							.frame(width: geometry.size.width * 0.16, height: geometry.size.width * 0.16, alignment: .center)
-//
-//						Image(systemName: "plus")
-//							.resizable()
-//							.aspectRatio(contentMode: .fit)
-//							.frame(width: geometry.size.width * 0.1, height: geometry.size.width * 0.1, alignment: .center)
-//
-//					}
-//					.foregroundColor(Color.white)
-//					.rotationEffect(.degrees(self.showMenu ? 135 : 0))
-//					.onTapGesture {
-//						withAnimation(.interactiveSpring(response: self.response, dampingFraction: self.dampingFraction, blendDuration: self.blendDuration)) {
-//							self.showMenu.toggle()
-//						}
-//					}
-//					.clipShape(Circle())
-//					.shadow(color: Color("Floating Button Light"), radius: 5)
-//					.scaleEffect(self.showMenu ? 1.2 : 1)
-//
-//				}
-//			}
-//			.padding(.horizontal)
-//
-//		}
-//
-//	}
-//}
 
 //MARK: Stock Chart
 struct StockChart: View {

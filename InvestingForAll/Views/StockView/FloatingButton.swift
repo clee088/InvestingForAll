@@ -19,6 +19,8 @@ struct FloatingButton: View {
 	@State private var dampingFraction: Double = 0.55
 	@State private var blendDuration: Double = 0.3
 	
+	@Binding var viewState : CGSize
+	
 	var body: some View {
 		GeometryReader { geometry in
 			
@@ -63,12 +65,12 @@ struct FloatingButton: View {
 
 								
 								Button(action: {
-									withAnimation(.interactiveSpring(response: self.response, dampingFraction: self.dampingFraction, blendDuration: self.blendDuration)) {
-										
+									withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.6, blendDuration: 0.3)) {
+										self.viewState = .zero
 										self.showMenu.toggle()
 										self.showTradeMenu.toggle()
-										
 									}
+									
 								}) {
 									ZStack {
 										Circle()
@@ -84,6 +86,9 @@ struct FloatingButton: View {
 								.frame(width: geometry.size.width * 0.14, height: geometry.size.width * 0.14, alignment: .center)
 								.clipShape(Circle())
 								.offset(x: geometry.size.width * -0.175, y: geometry.size.width * -0.175)
+//								.sheet(isPresented: self.$showTradeMenu) {
+//									TradeMenu(showTradeMenu: self.$showTradeMenu)
+//								}
 
 								
 								Button(action: {
@@ -148,6 +153,7 @@ struct FloatingButton: View {
 
 struct FloatingButtonView_Previews: PreviewProvider {
 	static var previews: some View {
-		FloatingButton(showTradeMenu: .constant(false))
+		FloatingButton(showTradeMenu: .constant(false), viewState: .constant(.zero))
+			
 	}
 }

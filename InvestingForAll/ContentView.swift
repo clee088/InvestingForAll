@@ -38,7 +38,7 @@ struct ContentView: View {
 								.zIndex(1)
 								.animation(.interactiveSpring(response: self.response, dampingFraction: self.dampingFraction, blendDuration: self.blendDuration))
 								.gesture(
-									DragGesture()
+									DragGesture(coordinateSpace: .global)
 										.onChanged() { value in
 											
 											if value.translation.width > 0 && self.showSearch == true {

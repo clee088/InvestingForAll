@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19E266" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Balance" representedClassName="Balance" syncable="YES" codeGenerationType="class">
+        <attribute name="buyingPower" optional="YES" attributeType="Double" defaultValueString="1000" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="Portfolio" representedClassName="Portfolio" syncable="YES" codeGenerationType="class">
+        <attribute name="companyName" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="pricePurchased" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="shares" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="ticker" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="Watchlist" representedClassName="Watchlist" syncable="YES" codeGenerationType="class">
         <attribute name="companyName" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
@@ -7,6 +17,8 @@
         <attribute name="ticker" optional="YES" attributeType="String"/>
     </entity>
     <elements>
+        <element name="Balance" positionX="-45" positionY="54" width="128" height="58"/>
+        <element name="Portfolio" positionX="-63" positionY="9" width="128" height="118"/>
         <element name="Watchlist" positionX="-63" positionY="-18" width="128" height="103"/>
     </elements>
 </model>
