@@ -14,7 +14,7 @@ struct ContentView: View {
 	
 	@EnvironmentObject var developer: DeveloperModel
 	
-	@State var index: Int = 0
+	@State var index: Int = 3
 	
 	@State var showSearch: Bool = false
 	
@@ -124,6 +124,10 @@ struct ContentView: View {
 								if self.index == 2 {
 //									StockView()
 									EmptyView()
+								}
+								
+								if self.index == 3 {
+									PortfolioView()
 								}
 									
 								if self.index == 4 {

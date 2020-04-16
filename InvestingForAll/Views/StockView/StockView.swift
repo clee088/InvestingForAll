@@ -339,7 +339,7 @@ struct StockView: View {
 				
 				FloatingButton(showTradeMenu: self.$showTradeMenu, viewState: self.$viewState).environment(\.colorScheme, self.colorScheme)
 				
-				TradeMenu(quote: self.quote, showTradeMenu: self.$showTradeMenu, symbol: self.$symbol, companyName: self.$companyName, viewState: self.$viewState)
+				TradeMenu(quote: self.quote, showTradeMenu: self.$showTradeMenu, symbol: self.$symbol, companyName: self.$companyName, imageData: self.$image.imageData, viewState: self.$viewState)
 					.environment(\.managedObjectContext, self.moc)
 				
 			}

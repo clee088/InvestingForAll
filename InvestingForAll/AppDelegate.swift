@@ -16,6 +16,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		// Override point for customization after application launch.
+		
+		self.preloadData()
 		return true
 	}
 
@@ -32,7 +34,49 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
 		// Use this method to release any resources that were specific to the discarded scenes, as they will not return.
 	}
-
+	func preloadData() {
+		
+		let preloadedDataKey: String = "didPreloadData"
+		
+		let userDefaults = UserDefaults.standard
+		
+		if userDefaults.bool(forKey: preloadedDataKey) == false {
+			//Preload Data
+			
+//			guard let urlPath: URL = Bundle.main.url(forResource: "PreloadedData", withExtension: "plist") else {
+//				return
+//			}
+			
+			let backgroundContext: NSManagedObjectContext = self.persistentContainer.newBackgroundContext()
+			self.persistentContainer.viewContext.automaticallyMergesChangesFromParent = true
+			
+			backgroundContext.perform {
+				
+				do {
+					let portfolio = Portfolio(context: backgroundContext)
+					
+					portfolio.id = UUID()
+					portfolio.name = "Cash"
+					portfolio.symbol = "Cash"
+					portfolio.sharePricePurchased = 1
+					portfolio.shares = 1000
+					portfolio.valuePurchased = portfolio.shares * portfolio.sharePricePurchased
+					try? portfolio.color = NSKeyedArchiver.archivedData(withRootObject: UIColor.systemGreen, requiringSecureCoding: false)
+					
+					try backgroundContext.save()
+					
+					userDefaults.set(true, forKey: preloadedDataKey)
+				} catch {
+					print(error.localizedDescription)
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	// MARK: - Core Data stack
 
 	lazy var persistentContainer: NSPersistentContainer = {

@@ -194,6 +194,7 @@ struct horizontalCardView: View {
 	@State var showPrices: Bool
 	
 	@ObservedObject var quote: QuoteBatchModel
+	
 	@State var symbolName: [String]
 	@State var symbolTicker: [String]
 	@State var symbolImageName: [String]

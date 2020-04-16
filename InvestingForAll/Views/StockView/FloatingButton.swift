@@ -12,6 +12,8 @@ struct FloatingButton: View {
 	
 	@Environment(\.colorScheme) var colorScheme: ColorScheme
 	
+	@Environment(\.managedObjectContext) var moc
+	
 	@State var showMenu: Bool = false
 	@Binding var showTradeMenu: Bool
 	
@@ -93,6 +95,9 @@ struct FloatingButton: View {
 								
 								Button(action: {
 									print("Add to Favorites")
+									
+//									let portfolio = Portfolio(context: self.moc)
+									
 								}) {
 									ZStack {
 										Circle()

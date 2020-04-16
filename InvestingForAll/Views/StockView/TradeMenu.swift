@@ -13,12 +13,16 @@ struct TradeMenu: View {
 	
 	@Environment(\.managedObjectContext) var moc
 	
+	@EnvironmentObject var developer: DeveloperModel
+	
 	@ObservedObject var quote: QuoteModel
 	
 	@Binding var showTradeMenu: Bool
 	
 	@Binding var symbol: String
 	@Binding var companyName: String
+	
+	@Binding var imageData: Data?
 	
 	@State var numberOfShares: String = ""
 	
@@ -40,7 +44,7 @@ struct TradeMenu: View {
 	
 	@FetchRequest(entity: Portfolio.entity(), sortDescriptors: []) var portfolio: FetchedResults<Portfolio>
 	
-	@FetchRequest(entity: Balance.entity(), sortDescriptors: []) var balance: FetchedResults<Balance>
+	@FetchRequest(entity: Portfolio.entity(), sortDescriptors: [], predicate: NSPredicate(format: "name == %@", "Cash")) var cash: FetchedResults<Portfolio>
 	
 	@State private var numberFormatter = NumberFormatter()
 	
@@ -54,14 +58,22 @@ struct TradeMenu: View {
 	
 	private func configureFormatter() {
 		numberFormatter.numberStyle = .decimal
+		numberFormatter.minimumFractionDigits = 2
+		numberFormatter.maximumFractionDigits = 2
 		numberFormatter.groupingSeparator = ","
 	}
 	
 	private func confirmOrder() {
 		
-		let buyingPower: Double = self.userBalance.balance - (self.quote.quoteResult?.latestPrice ?? 0) * (Double(self.numberOfShares) ?? 0)
+		let buyingPower: Double = self.cash.first?.valuePurchased ?? 0
 		
-		switch buyingPower > 0{
+		guard let shares = Double(self.numberOfShares) else {
+			return
+		}
+		
+		let value: Double = (self.quote.quoteResult?.latestPrice ?? 0) * shares
+		
+		switch buyingPower >= value {
 		
 		case true:
 			self.reviewTradeText = "\(self.buySide ? "BUY" : "SELL") \(self.numberOfShares) shares of \(self.symbol) for $\(self.estimatedCostString(marketPrice: self.quote.quoteResult?.latestPrice ?? 0, quantity: Double(self.numberOfShares) ?? 0))"
@@ -78,23 +90,50 @@ struct TradeMenu: View {
 	
 	private func executeOrder() {
 		
-		var balanceAfterTrade: Double = self.userBalance.balance
+		let cash: Double = self.cash.first?.shares ?? 0
+		
+		guard let shares = Double(self.numberOfShares) else {
+			return
+		}
+		
+		let value: Double = (self.quote.quoteResult?.latestPrice ?? 0) * shares
+		
+		var balanceAfterTrade: Double = self.cash.first?.shares ?? 0
 		
 		switch self.buySide {
 		case true:
-			balanceAfterTrade = self.userBalance.balance - (self.quote.quoteResult?.latestPrice ?? 0) * (Double(self.numberOfShares) ?? 0)
+			balanceAfterTrade = cash - value
 		case false:
-			balanceAfterTrade = self.userBalance.balance + (self.quote.quoteResult?.latestPrice ?? 0) * (Double(self.numberOfShares) ?? 0)
+			balanceAfterTrade = cash + value
 		}
 		
 		switch balanceAfterTrade > 0 {
 		case true:
 			//Execute Order
 			
+			let portfolio = Portfolio(context: self.moc)
+			
+			let purchasePrice: Double = self.quote.quoteResult?.latestPrice ?? 0
+			
+			portfolio.id = UUID()
+			portfolio.name = self.companyName
+			portfolio.symbol = self.symbol
+			portfolio.sharePricePurchased = purchasePrice
+			portfolio.shares = shares
+			portfolio.valuePurchased = portfolio.sharePricePurchased * portfolio.shares
+			try? portfolio.color = NSKeyedArchiver.archivedData(withRootObject: self.developer.sandboxMode ? UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1) : UIImage(data: self.imageData ?? Data())?.averageColor ?? UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1), requiringSecureCoding: false)
+			
+			self.cash.first?.shares -= portfolio.valuePurchased
+			self.cash.first?.valuePurchased = self.cash.first?.shares ?? 0
+			
+			try? self.moc.save()
+			
+			
 			withAnimation(.spring()) {
-				self.userBalance.balance = balanceAfterTrade
 				self.reviewTradeText = "Order Placed!"
 				self.orderButtonFill = LinearGradient(gradient: Gradient(colors: [Color("Green GL"), Color("Green GD")]), startPoint: .leading, endPoint: .trailing)
+				
+				UIApplication.shared.endEditing()
 				
 				//Reset Colors and Text
 				DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)) {
@@ -113,15 +152,6 @@ struct TradeMenu: View {
 	}
 	
 	var body: some View {
-		
-//		if self.balance.first?.buyingPower.isNaN ?? false {
-//			let balance = Balance(context: self.moc)
-//			
-//			balance.buyingPower = 1000
-//			
-//			try? self.moc.save()
-//			
-//		}
 		
 		self.configureFormatter()
 		
@@ -219,13 +249,7 @@ struct TradeMenu: View {
 								
 								Spacer()
 								
-								Button(action: {
-									self.userBalance.balance = 1000
-								}) {
-									Text("RESET")
-								}
-								
-								Text("$\(self.numberFormatter.string(for: self.userBalance.balance) ?? "")")
+								Text("$\(self.numberFormatter.string(for: self.cash.first?.valuePurchased) ?? "")")
 									.font(.subheadline)
 									.fontWeight(.light)
 								
@@ -374,7 +398,7 @@ struct TradeMenu: View {
 								
 								if value.predictedEndTranslation.height > geometry.size.height * 0.3 {
 									self.showTradeMenu.toggle()
-									//									UIApplication.shared.endEditing()
+									UIApplication.shared.endEditing()
 								}
 								else {
 									self.viewState = .zero
@@ -428,7 +452,7 @@ struct TradeMenu_Previews: PreviewProvider {
 		
 		let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 		
-		return TradeMenu(quote: QuoteModel(symbol: "ENPH", sandbox: true), showTradeMenu: .constant(true), symbol: .constant("ENPH"), companyName: .constant("Enphase Energy Inc."), viewState: .constant(.zero))
+		return TradeMenu(quote: QuoteModel(symbol: "ENPH", sandbox: true), showTradeMenu: .constant(true), symbol: .constant("ENPH"), companyName: .constant("Enphase Energy Inc."), imageData: .constant(Data()), viewState: .constant(.zero))
 			.environment(\.managedObjectContext, context)
 		
 	}
