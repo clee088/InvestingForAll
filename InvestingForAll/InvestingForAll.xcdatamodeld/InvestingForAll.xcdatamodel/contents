@@ -2,6 +2,8 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19E266" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Portfolio" representedClassName="Portfolio" syncable="YES">
         <attribute name="color" optional="YES" attributeType="Transformable"/>
+        <attribute name="currentPrice" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="currentValue" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="sharePricePurchased" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -16,7 +18,7 @@
         <attribute name="ticker" optional="YES" attributeType="String"/>
     </entity>
     <elements>
-        <element name="Portfolio" positionX="-63" positionY="9" width="128" height="148"/>
+        <element name="Portfolio" positionX="-63" positionY="9" width="128" height="178"/>
         <element name="Watchlist" positionX="-63" positionY="-18" width="128" height="103"/>
     </elements>
 </model>

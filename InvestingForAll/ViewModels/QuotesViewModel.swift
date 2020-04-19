@@ -14,12 +14,13 @@ final class QuoteBatchViewModel: ObservableObject {
 	private lazy var networkSerivice: NetworkService = NetworkService()
 	private var cancellable: AnyCancellable?
 	
-	@Published var results: QuoteBatch? = QuoteBatch()
+	@Published var results: QuoteBatch? = nil
+	@Published var dataIsLoaded: Bool = false
 	
 	init(symbol: String, sandbox: Bool) {
-		
+
 		self.getData(symbol: symbol, sandbox: sandbox)
-		
+
 	}
 	
 	func getData(symbol: String, sandbox: Bool) {
@@ -30,6 +31,10 @@ final class QuoteBatchViewModel: ObservableObject {
 				.receive(on: RunLoop.main)
 				.catch { _ in Just(self.results) }
 				.assign(to: \.results, on: self)
+		
+		if !(self.results?.isEmpty ?? true) {
+			self.dataIsLoaded = true
+		}
 		
 	}
 }

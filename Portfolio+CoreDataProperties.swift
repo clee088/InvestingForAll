@@ -18,6 +18,8 @@ extension Portfolio {
     }
 
     @NSManaged public var color: Data?
+	@NSManaged public var currentPrice: Double
+	@NSManaged public var currentValue: Double
     @NSManaged public var id: UUID?
     @NSManaged public var name: String?
     @NSManaged public var sharePricePurchased: Double
