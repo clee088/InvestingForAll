@@ -34,7 +34,7 @@ struct TradeMenu: View {
 	
 	@State private var reviewTradeText: String = "Review Trade"
 	
-	@ObservedObject private var userBalance: UserBalance = UserBalance()
+//	@ObservedObject private var userBalance: UserBalance = UserBalance()
 	
 	@State private var confirmingTrade: Bool = true
 	
@@ -121,10 +121,13 @@ struct TradeMenu: View {
 			portfolio.sharePricePurchased = purchasePrice
 			portfolio.shares = shares
 			portfolio.valuePurchased = portfolio.sharePricePurchased * portfolio.shares
+			
 			try? portfolio.color = NSKeyedArchiver.archivedData(withRootObject: self.developer.sandboxMode ? UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1) : UIImage(data: self.imageData ?? Data())?.averageColor ?? UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1), requiringSecureCoding: false)
 			
 			self.cash.first?.shares -= portfolio.valuePurchased
 			self.cash.first?.valuePurchased = self.cash.first?.shares ?? 0
+			self.cash.first?.currentValue = self.cash.first?.valuePurchased ?? 0
+			self.cash.first?.currentPrice = self.cash.first?.currentValue ?? 0
 			
 			try? self.moc.save()
 			

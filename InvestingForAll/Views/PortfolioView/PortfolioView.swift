@@ -22,7 +22,11 @@ struct PortfolioView: View {
 	
 	//	@ObservedObject var quote: QuoteBatchViewModel = QuoteBatchViewModel()
 	
-	@State private var selectedIndex: Int = 0
+	@State private var selectedIndex: Int? = nil
+	
+	@State private var isSelecting: Bool = false
+	
+	var geometry: GeometryProxy
 	
 	private func convertColor(data: Data) -> Color {
 		
@@ -35,54 +39,6 @@ struct PortfolioView: View {
 		return Color.clear
 		
 	}
-	
-	private func createDonutSlice(geometry: GeometryProxy, index: Int, color: Color) -> some View {
-		
-		let sum: Double = self.portfolio.map( {$0.currentValue} ).reduce(0, +)
-		
-		let values: [Double] = self.portfolio.map( { $0.currentValue / sum } ).sorted(by: >)
-		
-		let offset: Double = values.prefix(upTo: index).reduce(0, +)
-		
-		switch index == 0 {
-		case true:
-			return Circle()
-				.trim(from: CGFloat(0), to: CGFloat(offset + values[index]))
-				.stroke(color, style: StrokeStyle(lineWidth: geometry.size.width * 0.06, lineCap: .butt, lineJoin: .miter))
-			//				.frame(width: circleWidth, height: circleWidth, alignment: .center)
-			
-		default:
-			return Circle()
-				.trim(from: CGFloat(offset), to: CGFloat(offset + values[index]))
-				.stroke(color, style: StrokeStyle(lineWidth: geometry.size.width * 0.06, lineCap: .butt, lineJoin: .miter))
-			//				.frame(width: circleWidth, height: circleWidth, alignment: .center)
-			
-		}
-		
-	}
-	
-	//	private func updateValues() {
-	//
-	//		let portfolioNoCash: Slice<FetchedResults> = self.portfolio.dropFirst()
-	//
-	//		DispatchQueue.main.async {
-	//			for index in 1..<portfolioNoCash.count {
-	//
-	//				let lp: Double = self.quote.results?.values.map({$0.quote?.latestPrice ?? 0})[index] ?? 0
-	//				let shares: Double = portfolioNoCash.map({$0.shares})[index]
-	//
-	//				portfolioNoCash[index].currentValue = lp * shares
-	//
-	//				portfolioNoCash[index].currentPrice = lp
-	//
-	//				try? self.moc.save()
-	//
-	//			}
-	//
-	//			print(portfolioNoCash)
-	//		}
-	//
-	//	}
 	
 	var body: some View {
 		
@@ -97,19 +53,21 @@ struct PortfolioView: View {
 					
 					ZStack {
 						
-						VStack {
-							
-							Text("\(self.portfolio[self.selectedIndex].symbol ?? "Unavailable")")
-								.font(.headline)
-								.fontWeight(.semibold)
-							
-							HStack {
+						if self.selectedIndex != nil {
+							VStack {
 								
-								RoundedRectangle(cornerRadius: 5)
-									.fill(self.convertColor(data: self.portfolio[self.selectedIndex].color ?? Data()))
-									.frame(width: geometry.size.width * 0.05, height: geometry.size.width * 0.05)
+								Text("\(self.portfolio[self.selectedIndex ?? 0].symbol ?? "Unavailable")")
+									.font(.headline)
+									.fontWeight(.semibold)
 								
-								Text("$\(String(format: "%.2f", self.portfolio[self.selectedIndex].currentValue))")
+								HStack {
+									
+									RoundedRectangle(cornerRadius: 5)
+										.fill(self.convertColor(data: self.portfolio[self.selectedIndex ?? 0].color ?? Data()))
+										.frame(width: geometry.size.width * 0.05, height: geometry.size.width * 0.05)
+									
+									Text("$\(String(format: "%.2f", self.portfolio[self.selectedIndex ?? 0].currentValue))")
+								}
 							}
 						}
 						
@@ -118,10 +76,28 @@ struct PortfolioView: View {
 								
 								ZStack {
 									
-									self.createDonutSlice(geometry: geometry, index: index, color: self.convertColor(data: self.portfolio[index].color ?? Data()))
+//									self.createDonutSlice(geometry: geometry, index: index, color: self.convertColor(data: self.portfolio[index].color ?? Data()))
+									DonutSliceView(geometry: geometry, portfolio: self.portfolio, index: index, color: self.convertColor(data: self.portfolio[index].color ?? Data()), selectedIndex: self.$selectedIndex, isSelecting: self.$isSelecting)
 										.frame(width: geometry.size.width * 0.4, height: geometry.size.width * 0.4, alignment: .center)
 										.onTapGesture {
-											self.selectedIndex = index
+											
+											if self.isSelecting && self.selectedIndex == index {
+												self.selectedIndex = nil
+												self.isSelecting.toggle()
+											}
+											
+//											if self.isSelecting && self.selectedIndex != index {
+//												self.selectedIndex = index
+//											}
+												
+											else {
+												self.selectedIndex = index
+												
+												if !self.isSelecting {
+													self.isSelecting.toggle()
+												}
+												
+											}
 									}
 									
 								}
@@ -141,7 +117,6 @@ struct PortfolioView: View {
 							.font(.headline)
 							.fontWeight(.medium)
 						
-						//						Text("$\(String(format: "%.2f", self.quote.results?.values.map({$0.quote?.latestPrice ?? 0}).reduce(0, +) ?? 0))")
 						Text("$\(String(format: "%.2f", self.portfolio.map( { $0.currentValue } ).reduce(0, +)))")
 							.font(.title)
 							.fontWeight(.bold)
@@ -153,7 +128,7 @@ struct PortfolioView: View {
 								.aspectRatio(contentMode: .fit)
 								.foregroundColor(percent > 0 ? Color.green : Color.red)
 							
-							Text("$\(String(format: "%.2f", accValue-1000)) (\(String(format: "%.2f", percent))%)")
+							Text("\(String(format: "%.2f", accValue-1000)) (\(String(format: "%.2f", percent))%)")
 								.font(.headline)
 								.fontWeight(.light)
 								.foregroundColor(percent > 0 ? Color.green : Color.red)
@@ -162,39 +137,51 @@ struct PortfolioView: View {
 						
 						Spacer()
 					}
-					
-					//					Spacer()
+					.padding()
+					.background(Color("Card Background"))
+					.mask(AccountValueShape(cornerRadius: 20, style: .circular))
+					.shadow(color: Color("Card Background"), radius: 8)
+//				.cornerRadius(2, co)
 					
 				}
+				.padding(.bottom)
 				.frame(height: geometry.size.width * 0.5)
 				
 				Divider()
 				
 				HStack {
 					
-					//					Spacer(minLength: geometry.size.width * 0.06)
+					Spacer(minLength: geometry.size.width * 0.02)
 					
 					Text("Symbol")
 						.font(.subheadline)
 						.fontWeight(.light)
 						.frame(maxWidth: geometry.size.width * 0.3, alignment: .leading)
 					
-					Text("Shares")
+					Text("Cost Per Share/Total Cost")
 						.font(.subheadline)
 						.fontWeight(.light)
 						.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
 					
-					//					Spacer()
+					Text("Last Price/Current Value")
+						.font(.subheadline)
+						.fontWeight(.light)
+						.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
 					
-					Spacer()
+					Text("P/L")
+						.font(.subheadline)
+						.fontWeight(.light)
+						.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
+					
 				}
 				.padding(.horizontal)
 				
 				ScrollView(.vertical) {
 					VStack(alignment: .leading) {
-						ForEach(self.portfolio, id: \.id) { object in
+						ForEach(self.portfolio.dropFirst(), id: \.id) { object in
 							
 							PortfolioRow(asset: object, geometry: geometry)
+								.frame(maxHeight: geometry.size.height * 0.2)
 							
 						}
 					}
@@ -206,18 +193,20 @@ struct PortfolioView: View {
 				Spacer(minLength: geometry.size.height * 0.1)
 				
 			}
-			.padding()
-			//			.onAppear() {
-			//
-			//				print(self.portfolio.map( { ($0.symbol ?? "") } ).dropFirst().joined(separator: ","))
-			//
-			//				self.quote.getData(symbol: self.portfolio.map( { ($0.symbol ?? "") } ).dropFirst().joined(separator: ","), sandbox: self.developer.sandboxMode)
-			//
-			//				self.updateValues()
-			//
-			//			}
+			.padding(.vertical)
 		}
 		
+	}
+}
+
+private struct AccountValueShape: Shape {
+	
+	var cornerRadius: CGFloat
+	var style: RoundedCornerStyle
+	
+	func path(in rect: CGRect) -> Path {
+		let path = UIBezierPath(roundedRect: rect, byRoundingCorners: [.topLeft, .bottomLeft], cornerRadii: CGSize(width: cornerRadius, height: cornerRadius))
+		return Path(path.cgPath)
 	}
 }
 
@@ -226,99 +215,10 @@ struct PortfolioView_Previews: PreviewProvider {
 		
 		let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 		
-		return PortfolioView()
-			.environment(\.managedObjectContext, context)
-			.environmentObject(DeveloperModel())
-	}
-}
-
-struct PortfolioRow: View {
-	
-	@State var asset: FetchedResults<Portfolio>.Element
-	
-	@State var geometry: GeometryProxy
-	
-	@ObservedObject var quote: QuoteViewModel = QuoteViewModel()
-	
-	@Environment(\.managedObjectContext) var moc
-	
-	private func updateValues() {
-		
-		switch self.asset.symbol != "Cash" {
-		case true:
-			
-			self.quote.getData(symbol: self.asset.symbol ?? "", sandbox: true, asset: asset)
-			
-		default:
-			self.asset.currentValue = self.asset.shares
-			self.asset.currentPrice = 1
+		return GeometryReader { geometry in
+			PortfolioView(geometry: geometry)
+				.environment(\.managedObjectContext, context)
+				.environmentObject(DeveloperModel())
 		}
-		
 	}
-	
-	private func convertColor(data: Data) -> Color {
-		
-		do {
-			return try Color(NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: data) ?? UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1))
-		} catch {
-			print(error)
-		}
-		
-		return Color.clear
-		
-	}
-	
-	var body: some View {
-		
-		VStack {
-			
-			HStack {
-				
-				RoundedRectangle(cornerRadius: 5)
-					.fill(self.convertColor(data: self.asset.color ?? Data()))
-					.frame(width: geometry.size.width * 0.02)
-				
-				VStack(alignment: .leading) {
-					
-					Text(String(self.asset.symbol ?? "Unknown"))
-						.font(.headline)
-						.fontWeight(.semibold)
-					
-					Text(String(self.asset.name ?? "Unknown"))
-						.font(.headline)
-						.fontWeight(.regular)
-					
-				}
-				.frame(maxWidth: geometry.size.width * 0.3, alignment: .leading)
-				
-				//			Spacer()
-				
-				VStack(alignment: .leading) {
-					
-					Text(String(format: "%.2f", self.asset.shares))
-						.font(.headline)
-						.fontWeight(.regular)
-					
-					Text(String(format: "%.2f", self.asset.valuePurchased))
-						.font(.headline)
-						.fontWeight(.regular)
-					
-				}
-				.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
-				
-				Spacer()
-			}
-			.padding([.vertical, .trailing])
-			
-		}
-		.onAppear() {
-			self.updateValues()
-			print("loaded")
-		}
-		//		.background(self.convertColor(data: self.asset.color ?? Data()))
-		
-	}
-	
-	
-	
 }

@@ -16,7 +16,7 @@ struct OverviewView: View {
 	
 	@EnvironmentObject var developer: DeveloperModel
 	
-	@State var sectorETFS: [String : [String]] = [
+	var sectorETFS: [String : [String]] = [
 		"Communication Services" : ["XLC", "phone"],
 		"Consumer Discretionary" : ["XLY", "car"],
 		"Consumer Staples" : ["XLP", "cart"],
@@ -30,12 +30,14 @@ struct OverviewView: View {
 		"Utilities" : ["XLU", "lightbulb"],
 	]
 	
-	@State var indices: [String : [String]] = [
+	var indices: [String : [String]] = [
 		"SPDR S&P 500 ETF Trust" : ["SPY", "chart.bar"],
 		"SPDR Dow Jones Industrial Average ETF Trust" : ["DIA", "chart.bar"],
 		"Invesco QQQ Trust" : ["QQQ", "chart.bar"],
 		"iShares Russell 2000 ETF" : ["IWM", "chart.bar"]
 	]
+	
+	var geometry: GeometryProxy
 	
 	var body: some View {
 		
@@ -51,20 +53,21 @@ struct OverviewView: View {
 		let indexTickers = sortedIndices.map { $0.value.first ?? "N/A" }
 		let indexImage = sortedIndices.map { $0.value.last ?? "N/A" }
 		
-		return GeometryReader { geometry in
-			ZStack {
+//		return GeometryReader { geometry in
+			return ZStack {
 				
 				ScrollView(.vertical, showsIndicators: false) {
 					
 					VStack {
 						
-						horizontalCardView(title: "Sectors", width: geometry.size.width * 0.4, height: geometry.size.height * 0.26, color: Color("Card Background"), shadowColor: Color("Card Shadow"), showImage: true, showPrices: false, quote: QuoteBatchModel(symbol: sectorTickers.joined(separator: ","), sandbox: self.developer.sandboxMode), symbolName: sectorName, symbolTicker: sectorTickers, symbolImageName: sectorImage)
+						
+						horizontalCardView(title: "Sectors", color: Color("Card Background"), shadowColor: Color("Card Shadow"), showImage: true, showPrices: false, symbolName: sectorName, symbolTicker: sectorTickers, symbolImageName: sectorImage, geometry: self.geometry)
 //							.background(Color("Card View Background"))
 											
-						horizontalCardView(title: "Indices", width: geometry.size.width * 0.4, height: geometry.size.height * 0.26, color: Color("Card Background"), shadowColor: Color("Card Shadow"), showImage: true, showPrices: true, quote: QuoteBatchModel(symbol: indexTickers.joined(separator: ","), sandbox: self.developer.sandboxMode), symbolName: indexName, symbolTicker: indexTickers, symbolImageName: indexImage)
+						horizontalCardView(title: "Indices", color: Color("Card Background"), shadowColor: Color("Card Shadow"), showImage: true, showPrices: true, symbolName: indexName, symbolTicker: indexTickers, symbolImageName: indexImage, geometry: self.geometry)
 //							.background(Color("Card View Background"))
 							
-						watchlistView()
+						WatchlistView(geometry: geometry)
 							.padding()
 							.frame(height: geometry.size.height * 0.45)
 						
@@ -74,7 +77,7 @@ struct OverviewView: View {
 				}
 			}
 //			.background(Color(.))
-		}
+//		}
 	}
 }
 
@@ -87,7 +90,7 @@ struct OverviewView_Previews: PreviewProvider {
 		return Group {
 			
 			GeometryReader { geometry in
-				OverviewView()
+				OverviewView(geometry: geometry)
 					.environment(\.colorScheme, .light)
 					.environment(\.managedObjectContext, context)
 					.environmentObject(DeveloperModel())
@@ -102,90 +105,11 @@ struct OverviewView_Previews: PreviewProvider {
 	}
 }
 
-struct watchlistView: View {
-	
-	@Environment(\.managedObjectContext) var moc
-	
-	@FetchRequest(entity: Watchlist.entity(), sortDescriptors: []) var watchlist: FetchedResults<Watchlist>
-	
-	var body: some View {
-		
-		GeometryReader { geometry in
-			VStack {
-				HStack {
-					Text("Watchlist")
-						.font(.system(size: 20))
-						.bold()
-					
-					Spacer()
-				}
-				
-				Spacer()
-				
-				if !self.watchlist.isEmpty {
-					ScrollView(.vertical) {
-						VStack {
-							ForEach(self.watchlist, id: \.id) { stock in
-								
-								VStack {
-									HStack {
-										
-										Image(uiImage: (UIImage(data: stock.image ?? Data()) ?? UIImage(systemName: "exclamationmark.triangle"))!)
-											.resizable()
-											.aspectRatio(contentMode: .fit)
-											.frame(width: geometry.size.width * 0.15, height: geometry.size.height * 0.15, alignment: .center)
-											.clipShape(Circle())
-										
-										Text(stock.ticker ?? "N/A")
-											.font(.headline)
-											.fontWeight(.regular)
-										
-										
-										Spacer()
-										
-									}
-									
-									HStack {
-										Text(stock.companyName ?? "N/A")
-											//										.font(.system(size: 15))
-											.font(.subheadline)
-											.fontWeight(.light)
-										
-										Spacer()
-									}
-									
-								}
-								.padding()
-								.background(Color("Card Background"))
-								.clipShape(RoundedRectangle(cornerRadius: 20))
-								
-							}
-							
-						}
-					}
-					
-				} else {
-						
-					Text("Your Watchlist is Empty!")
-						
-				}
-				
-				Spacer()
-				
-			}
-		}
-		
-	}
-	
-}
-
 struct horizontalCardView: View {
 	
 	@EnvironmentObject var developer: DeveloperModel
 	
 	var title: String
-	var width: CGFloat?
-	var height: CGFloat?
 	var color: Color
 	var linearGradient: LinearGradient?
 	var shadowColor: Color
@@ -193,17 +117,19 @@ struct horizontalCardView: View {
 	@State var showImage: Bool
 	@State var showPrices: Bool
 	
-	@ObservedObject var quote: QuoteBatchModel
+	@ObservedObject var quote: QuoteBatchViewModel = QuoteBatchViewModel()
 	
 //	@ObservedObject var quoteViewModel: QuotesViewModel
 	
-	@State var symbolName: [String]
-	@State var symbolTicker: [String]
-	@State var symbolImageName: [String]
+	var symbolName: [String]
+	var symbolTicker: [String]
+	var symbolImageName: [String]
+	
+	var geometry: GeometryProxy
 	
 	var body: some View {
 		
-		let symbolData: [QuoteBatchValue]? = self.quote.quoteResult?.map { $0.value } ?? []
+		let symbolData: [QuoteBatchValue]? = self.quote.results?.map { $0.value } ?? []
 		
 		return ZStack {
 			VStack {
@@ -222,13 +148,13 @@ struct horizontalCardView: View {
 					HStack {
 						
 						if self.quote.dataIsLoaded {
-							ForEach(0..<self.quote.quoteResult!.count) { item in
+							ForEach(0..<(self.quote.results?.count ?? 0)) { item in
 								
 								VStack {
 									
 									Spacer()
 
-									HCardView(index: item, title: self.symbolName[item], ticker: self.symbolTicker[item], imageName: self.symbolImageName[item], change: symbolData?[item].quote?.change ?? 0, percentage: (symbolData?[item].quote?.changePercent ?? 0) * 100, price: symbolData?[item].quote?.latestPrice ?? 0, width: self.width, height: self.height, color: self.color, shadowColor: self.shadowColor, showImage: self.$showImage, showPrices: self.$showPrices)
+									HCardView(index: item, title: self.symbolName[item], ticker: self.symbolTicker[item], imageName: self.symbolImageName[item], change: symbolData?[item].quote?.change ?? 0, percentage: (symbolData?[item].quote?.changePercent ?? 0) * 100, price: symbolData?[item].quote?.latestPrice ?? 0, color: self.color, shadowColor: self.shadowColor, showImage: self.$showImage, showPrices: self.$showPrices, geometry: self.geometry)
 									
 									Spacer()
 								}
@@ -241,18 +167,18 @@ struct horizontalCardView: View {
 							
 							Text("Unavailable... Reloading")
 								.fontWeight(.semibold)
-								.frame(width: self.width, height: self.height, alignment: .center)
+								.frame(width: self.geometry.size.width * 0.4, height: self.geometry.size.height * 0.26, alignment: .center)
 								.padding()
-								.onAppear() {
-									
-									if self.quote.dataIsLoaded == false {
-										DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-											if self.quote.dataIsLoaded == false {
-												self.quote.getQuoteData(symbol: self.symbolTicker.joined(separator: ","), sandbox: self.developer.sandboxMode)
-											}
-										}
-									}
-							}
+//								.onAppear() {
+//
+//									if self.quote.dataIsLoaded == false {
+//										DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+//											if self.quote.dataIsLoaded == false {
+//												self.quote.getData(symbol: self.symbolTicker.joined(separator: ","), sandbox: self.developer.sandboxMode)
+//											}
+//										}
+//									}
+//							}
 							
 							ActivityIndicator(isLoading: self.$quote.dataIsLoaded)
 							
@@ -264,6 +190,9 @@ struct horizontalCardView: View {
 				}
 				
 			}
+		}
+		.onAppear {
+			self.quote.getData(symbol: self.symbolTicker.joined(separator: ","), sandbox: self.developer.sandboxMode)
 		}
 	}
 }
@@ -279,14 +208,14 @@ struct HCardView: View {
 	var percentage: Double = 0
 	var price: Double = 0
 	
-	var width: CGFloat?
-	var height: CGFloat?
 	var color: Color
 	var linearGradient: LinearGradient?
 	var shadowColor: Color
 	
 	@Binding var showImage: Bool
 	@Binding var showPrices: Bool
+	
+	var geometry: GeometryProxy
 	
 	var body: some View {
 		
@@ -384,11 +313,11 @@ struct HCardView: View {
 		}
 		.background(self.color)
 		.mask(RoundedRectangle(cornerRadius: 25))
-		.frame(width: self.width, height: self.height, alignment: .center)
+		.frame(width: self.geometry.size.width * 0.4, height: geometry.size.height * 0.26, alignment: .center)
 		.clipped()
 		.shadow(color: self.shadowColor, radius: 5)
-		.padding(.bottom)
-		.padding(EdgeInsets(top: 0, leading: (self.width ?? 0) * 0.08, bottom: 0, trailing: (self.width ?? 0) * 0.08))
+//		.padding(.vertical)
+		.padding(EdgeInsets(top: 0, leading: self.geometry.size.width * 0.02, bottom: 0, trailing: self.geometry.size.width * 0.02))
 		
 	}
 }

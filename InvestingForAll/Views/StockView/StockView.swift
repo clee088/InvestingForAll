@@ -32,54 +32,6 @@ struct StockView: View {
 	
 	@State var viewState: CGSize = .zero
 	
-	private func roundedNumberString(number: Double) -> String {
-		
-		var rn: String = ""
-		
-		//MARK: Thousand
-		//1,000 -> 1,000,000
-		if number >= 1000 && number < 1000000 {
-			let n = number / 1000
-			
-			rn = "\(String(format: "%.2f", n))K"
-			
-		}
-			
-			//MARK: Million
-			//1,000,000 -> 1,000,000,000
-		else if number >= 1000000 && number < 1000000000 {
-			let n = number / 1000000
-			
-			rn = "\(String(format: "%.2f", n))M"
-			
-		}
-			
-			//MARK: Billion
-			//1,000,000,000 -> 1,000,000,000,000
-		else if number >= 1000000000 && number < 1000000000000 {
-			let n = number / 1000000000
-			
-			rn = "\(String(format: "%.2f", n))B"
-			
-		}
-			
-			//MARK: Trillion
-			//1,000,000,000,000 -> 1,000,000,000,000,000
-		else if number >= 1000000000000 && number < 1000000000000000 {
-			let n = number / 1000000000000
-			
-			rn = "\(String(format: "%.2f", n))T"
-			
-		}
-			
-		else {
-			rn = String(format: "%.0f", number)
-		}
-		
-		return rn
-		
-	}
-	
 	var body: some View {
 		
 		return GeometryReader { geometry in
@@ -87,218 +39,15 @@ struct StockView: View {
 			ZStack {
 				VStack {
 					
-					VStack {
-						HStack {
-							
-							VStack(alignment: .leading) {
-								HStack {
-									Image(uiImage: UIImage(data: self.image.imageData ?? Data()) ?? UIImage(systemName: "exclamationmark.triangle")!)
-										.resizable()
-										.frame(width: geometry.size.width * 0.1, height: geometry.size.width * 0.1, alignment: .center)
-										.mask(Circle())
-									
-									Text("\(self.symbol)")
-										.font(.title)
-										.fontWeight(.semibold)
-										.foregroundColor(Color.white)
-									//									.bold()
-									
-									Spacer()
-									
-									Button(action: {
-										self.isPresented.toggle()
-									}) {
-										Image(systemName: "magnifyingglass")
-											.imageScale(.large)
-											.foregroundColor(Color.white)
-										
-									}
-									
-								}
-								
-								Text("\(self.companyName)")
-									.font(.subheadline)
-									.fontWeight(.medium)
-									.foregroundColor(Color.white)
-								//								.bold()
-							}
-							
-						}
-						.padding(.horizontal)
-						
-						
-						//					if self.quote.dataIsLoaded {
-						HStack {
-							
-							Text("$\(String(format: "%.2f", self.quote.quoteResult?.latestPrice ?? 32.38))")
-								.bold()
-								.font(.title)
-								.foregroundColor(Color.white)
-							//								.font(.system(size: 22))
-							
-							VStack(alignment: .leading) {
-								
-								Text(String(format: "%.2f", self.quote.quoteResult?.change ?? -3.75))
-									.font(.system(size: 15))
-									.foregroundColor((self.quote.quoteResult?.change ?? -3.75) > 0 ? Color.green : Color.red)
-								
-								Text("\(String(format: "%.2f", (self.quote.quoteResult?.changePercent ?? -0.1038) * 100))%")
-									.font(.system(size: 15))
-									.foregroundColor((self.quote.quoteResult?.change ?? -3.75) > 0 ? Color.green : Color.red)
-								
-							}
-							
-							Spacer()
-							
-							Button(action: {
-//								withAnimation(.spring()) {
-									self.showStatistics.toggle()
-//								}
-							}) {
-								HStack {
-									
-									Text(self.showStatistics ? " Hide Statistics" : "Statistics")
-										.font(.caption)
-									
-									Image(systemName: "arrow.down.square")
-										.imageScale(.medium)
-										.rotationEffect(.degrees(self.showStatistics ? -180 : 0))
-								}
-								.foregroundColor(Color.white)
-							}
-							
-						}
-						.padding(.horizontal)
-						//					} else {
-						//						Text("Unavailable... Reloading")
-						//							.bold()
-						//							.padding()
-						//							.onAppear() {
-						//
-						//								if self.news.dataIsLoaded == false {
-						//									DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-						//										if self.news.dataIsLoaded == false {
-						//											self.news.getNewsData(symbol: self.symbol, sandbox: self.developer.sandboxMode)
-						//										}
-						//									}
-						//								}
-						//
-						//								if self.quote.dataIsLoaded == false {
-						//									DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-						//										if self.quote.dataIsLoaded == false {
-						//											self.quote.getData(symbol: self.symbol, sandbox: self.developer.sandboxMode)
-						//										}
-						//									}
-						//								}
-						//						}
-						//					}
-						
-					}
-					.padding(.top)
+					StockViewHeader(isPresented: self.$isPresented, image: self.image, quote: self.quote, companyName: self.companyName, symbol: self.symbol, showStatistics: self.$showStatistics, geometry: geometry)
+						.padding(.top)
 					
 					ScrollView(.vertical) {
 						VStack {
 							
 							if self.showStatistics {
 								
-								VStack(alignment: .leading) {
-									
-									HStack {
-										VStack(alignment: .leading) {
-											Text("Market Cap:")
-												.font(.subheadline)
-											
-											Text(self.roundedNumberString(number: Double(self.quote.quoteResult?.marketCap ?? 3990000000)))
-												.font(.subheadline)
-												.bold()
-											
-											Spacer()
-										}
-										
-										Spacer()
-										
-										VStack(alignment: .trailing) {
-											Text("Prev Close/Open:")
-												.font(.subheadline)
-											
-											
-											Text("\(String(format: "%.2f", self.quote.quoteResult?.previousClose ?? 36.13))/\(String(format: "%.2f", self.quote.quoteResult?.open ?? 34.05))")
-												.font(.subheadline)
-												.bold()
-											
-											Spacer()
-										}
-									}
-									
-									HStack {
-										VStack(alignment: .leading) {
-											Text("Volume:")
-												.font(.subheadline)
-											
-											
-											Text(self.roundedNumberString(number: self.quote.quoteResult?.volume ?? 5000000))
-												.font(.subheadline)
-												.bold()
-											
-											
-											Spacer()
-										}
-										
-										Spacer()
-										
-										VStack(alignment: .trailing) {
-											Text("Day's Range:")
-												.font(.subheadline)
-											
-											
-											Text("\(String(format: "%.2f", self.quote.quoteResult?.low ?? 31.27)) - \(String(format: "%.2f", self.quote.quoteResult?.high ?? 34.49))")
-												.font(.subheadline)
-												.bold()
-											
-											
-											Spacer()
-										}
-										
-									}
-									
-									HStack {
-										VStack(alignment: .leading) {
-											Text("PE Ratio:")
-												.font(.subheadline)
-											
-											
-											Text(String(self.quote.quoteResult?.peRatio ?? 26.65))
-												.font(.subheadline)
-												.bold()
-											
-											
-											Spacer()
-										}
-										
-										Spacer()
-										
-										VStack(alignment: .trailing) {
-											Text("52 Week Range:")
-												.font(.subheadline)
-											
-											
-											Text("\(String(format: "%.2f", self.quote.quoteResult?.week52Low ?? 9.06)) - \(String(format: "%.2f", self.quote.quoteResult?.week52High ?? 59.15))")
-												.font(.subheadline)
-												.bold()
-											
-											
-											Spacer()
-										}
-									}
-									
-								}
-								.padding()
-								.frame(minWidth: geometry.size.width * 0.9, maxHeight: geometry.size.height * 0.2)
-								.animation(.spring())
-								.transition(AnyTransition.move(edge: .top).combined(with: .opacity))
-								.background(Color("Stock View Card"))
-								.mask(RoundedRectangle(cornerRadius: 25))
-								.shadow(color: Color("Card Shadow"), radius: 5, x: 0, y: 5)
+								StatisticsView(quote: self.quote, geometry: geometry)
 								
 								Spacer(minLength: geometry.size.height * 0.02)
 								
@@ -312,7 +61,7 @@ struct StockView: View {
 							
 							Spacer(minLength: geometry.size.height * 0.05)
 							
-							NewsView(height: geometry.size.height, news: self.news, showNewsArticle: self.$showNewsArticle)
+							NewsView(height: geometry.size.height, news: self.news, showNewsArticle: self.$showNewsArticle, geometry: geometry)
 								.frame(height: geometry.size.height * 0.4, alignment: .center)
 								.padding()
 								.background(Color("Stock View Card"))
@@ -337,7 +86,8 @@ struct StockView: View {
 				.background(LinearGradient(gradient: Gradient(colors: [Color("Header Light"), Color("Header Dark")]), startPoint: .leading, endPoint: .trailing))
 				.edgesIgnoringSafeArea(.top)
 				
-				FloatingButton(showTradeMenu: self.$showTradeMenu, viewState: self.$viewState).environment(\.colorScheme, self.colorScheme)
+				FloatingButton(showTradeMenu: self.$showTradeMenu, viewState: self.$viewState, ticker: self.$symbol, name: self.$companyName)
+					.environment(\.colorScheme, self.colorScheme)
 				
 				TradeMenu(quote: self.quote, showTradeMenu: self.$showTradeMenu, symbol: self.$symbol, companyName: self.$companyName, imageData: self.$image.imageData, viewState: self.$viewState)
 					.environment(\.managedObjectContext, self.moc)
@@ -425,119 +175,6 @@ struct StockChart: View {
 		}
 		
 		return path
-		
-	}
-	
-}
-
-//MARK: News View
-struct NewsView: View {
-	
-	@State var height: CGFloat
-	@ObservedObject var news: NewsModel
-	@Binding var showNewsArticle: Bool
-	
-	@State var newsArticleURLString: String = ""
-	
-	var body: some View {
-		
-		return VStack {
-			HStack {
-				Text("News")
-					.font(.headline)
-				
-				Spacer()
-			}
-			
-			if self.news.dataIsLoaded {
-				ScrollView(.vertical) {
-					ForEach(self.news.newsResults ?? [], id: \.url) { newsItem in
-						VStack {
-							HStack {
-								NewsRow(newsItem: newsItem)
-							}
-							
-							Divider()
-						}
-						.frame(minHeight: self.height * 0.15)
-						.onTapGesture {
-							self.newsArticleURLString = newsItem.url ?? ""
-							self.showNewsArticle.toggle()
-						}
-						
-					}
-				}
-				.sheet(isPresented: self.$showNewsArticle) {
-					SFSafariView(urlString: self.newsArticleURLString)
-				}
-			} else {
-				VStack {
-					Spacer()
-					ActivityIndicator(isLoading: self.$news.dataIsLoaded)
-					Spacer()
-				}
-			}
-			
-			Spacer()
-		}
-		
-	}
-}
-
-struct NewsRow: View {
-	
-	@State var newsItem: NewsItem
-	
-	var body: some View {
-		
-		return GeometryReader { geometry in
-			ZStack {
-				VStack {
-					HStack {
-						Text(self.newsItem.headline ?? "N/A")
-							.font(.subheadline)
-							.bold()
-							.lineLimit(nil)
-							.multilineTextAlignment(.leading)
-						
-						Spacer()
-						
-						Image(uiImage: (UIImage(data: self.displayImage()) ?? UIImage(systemName: "exclamationmark.triangle"))!)
-							.resizable()
-							.aspectRatio(contentMode: .fit)
-//							.frame(maxHeight: geometry.size.width * 0.4)
-						//						.frame(width: geometry.size.width * 0.3, height: geometry.size.width * 0.3, alignment: .center)
-						
-					}
-					
-					HStack {
-						Text(self.newsItem.source ?? "N/A")
-							.font(.subheadline)
-						
-						Spacer()
-					}
-				}
-				.padding(.bottom)
-			}
-		}
-		
-	}
-	
-	func displayImage() -> Data {
-		
-		var data = Data()
-		
-		guard let imageURL: URL = URL(string: self.newsItem.image ?? "") else {
-			return Data()
-		}
-		
-		guard let imageData: Data = try? Data(contentsOf: imageURL) else {
-			return Data()
-		}
-		
-		data = imageData
-		
-		return data
 		
 	}
 	

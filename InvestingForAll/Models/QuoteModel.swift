@@ -65,9 +65,7 @@ struct Quote: Decodable {
 typealias QuoteBatch = [String: QuoteBatchValue]
 
 struct Logo: Decodable {
-	
 	var url: String
-	
 }
 
 class LogoModel: ObservableObject {
@@ -135,6 +133,9 @@ class LogoModel: ObservableObject {
 	}
 	
 }
+
+
+//MARK: Moved to Combine - Check ViewModels
 
 class QuoteModel: ObservableObject {
 	
@@ -263,3 +264,4 @@ class QuoteBatchModel: ObservableObject {
 	}
 	
 }
+

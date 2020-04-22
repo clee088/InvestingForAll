@@ -14,7 +14,9 @@ struct ContentView: View {
 	
 	@EnvironmentObject var developer: DeveloperModel
 	
-	@State var index: Int = 3
+	@Environment(\.managedObjectContext) var moc
+	
+	@State var index: Int = 0
 	
 	@State var showSearch: Bool = false
 	
@@ -117,8 +119,10 @@ struct ContentView: View {
 								
 								if self.index == 0 {
 									
-									OverviewView()
-//										.frame(width: geometry.size.width)
+									OverviewView(geometry: geometry)
+										.environment(\.colorScheme, self.colorScheme)
+										.environment(\.managedObjectContext, self.moc)
+										.environmentObject(self.developer)
 								}
 								
 								if self.index == 2 {
@@ -127,7 +131,7 @@ struct ContentView: View {
 								}
 								
 								if self.index == 3 {
-									PortfolioView()
+									PortfolioView(geometry: geometry)
 								}
 									
 								if self.index == 4 {
@@ -158,23 +162,25 @@ struct ContentView: View {
 //						.frame(height: geometry.size.height * 0.1)
 //						.shadow(color: self.colorScheme == .light ? Color(.systemGray6) : Color("Search Dark"), radius: 8, x: 0, y: -2)
 						
+						CustomTabView(index: self.$index, geometry: geometry)
+						
 					}
 				}
 				.edgesIgnoringSafeArea(.bottom)
 				.navigationBarTitle("")
 				.navigationBarHidden(true)
-				.overlay(
-					
-					VStack {
-						
-						Spacer()
-						
-						customTabView(index: self.$index, width: geometry.size.width, height: geometry.size.height * 0.1)
-					}
-//					.padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
-					.edgesIgnoringSafeArea(.bottom)
-					
-				)
+//				.overlay(
+//
+//					VStack {
+//
+//						Spacer()
+//
+//						CustomTabView(index: self.$index, width: geometry.size.width, height: geometry.size.height * 0.1)
+//					}
+////					.padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
+//					.edgesIgnoringSafeArea(.bottom)
+//
+//				)
 			}
 		}
 	}
@@ -182,8 +188,12 @@ struct ContentView: View {
 
 //MARK: Previews
 struct ContentView_Previews: PreviewProvider {
+	
 	static var previews: some View {
-		Group {
+		
+		let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+		
+		return Group {
 			//			ContentView()
 			//				.previewDevice(PreviewDevice(rawValue: "iPhone SE"))
 			//				.previewDisplayName("iPhone SE")
@@ -196,25 +206,27 @@ struct ContentView_Previews: PreviewProvider {
 				.previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro"))
 				.previewDisplayName("iPhone 11 Pro (Light Mode)")
 				.environment(\.colorScheme, .light)
+				.environmentObject(DeveloperModel())
+				.environment(\.managedObjectContext, context)
 			
 //			ContentView()
 //				.previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro"))
 //				.previewDisplayName("iPhone 11 Pro (Dark Mode)")
 //				.environment(\.colorScheme, .dark)
 		}
+	
 	}
 }
 
 //MARK: Sub-views
 
-struct customTabView: View {
+struct CustomTabView: View {
 	
-	@Environment(\.colorScheme) var colorScheme: ColorScheme
+//	@Environment(\.colorScheme) var colorScheme: ColorScheme
 	
 	@Binding var index: Int
 	
-	var width: CGFloat?
-	var height: CGFloat?
+	var geometry: GeometryProxy
 	
 	var imageNames: [String] = ["house", "person", "globe", "briefcase", "gear"]
 	
@@ -229,7 +241,7 @@ struct customTabView: View {
 					Image(systemName: self.imageNames[item])
 						.resizable()
 						.aspectRatio(contentMode: .fit)
-						.frame(width: ((self.width ?? 0) / 16), height: ((self.width ?? 0) / 16), alignment: .center)
+						.frame(width: (self.geometry.size.width / 16), height: (self.geometry.size.width / 16), alignment: .center)
 						.foregroundColor(item == self.index ? Color("Button") : Color.gray)
 						.animation(.easeOut)
 						.onTapGesture {
@@ -241,7 +253,7 @@ struct customTabView: View {
 				}
 				
 			}
-			.frame(height: self.height, alignment: .center)
+			.frame(height: self.geometry.size.height * 0.1, alignment: .center)
 			
 		}
 		.padding(.bottom)

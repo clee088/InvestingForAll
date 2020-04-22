@@ -34,6 +34,8 @@ struct SettingsView: View {
 		portfolio.sharePricePurchased = 1
 		portfolio.shares = 1000
 		portfolio.valuePurchased = portfolio.shares * portfolio.sharePricePurchased
+		portfolio.currentValue = portfolio.valuePurchased
+		portfolio.currentPrice = portfolio.currentValue
 		try? portfolio.color = NSKeyedArchiver.archivedData(withRootObject: UIColor.systemGreen, requiringSecureCoding: false)
 		
 		try? self.moc.save()

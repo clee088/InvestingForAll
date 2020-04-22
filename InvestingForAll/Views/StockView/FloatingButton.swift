@@ -23,6 +23,10 @@ struct FloatingButton: View {
 	
 	@Binding var viewState : CGSize
 	
+	@Binding var ticker: String
+//	@Binding var image: LogoModel
+	@Binding var name: String
+	
 	var body: some View {
 		GeometryReader { geometry in
 			
@@ -96,7 +100,10 @@ struct FloatingButton: View {
 								Button(action: {
 									print("Add to Favorites")
 									
-//									let portfolio = Portfolio(context: self.moc)
+									let watchlist = Watchlist(context: self.moc)
+									
+//									watchlist.ticker =
+									
 									
 								}) {
 									ZStack {
@@ -158,7 +165,7 @@ struct FloatingButton: View {
 
 struct FloatingButtonView_Previews: PreviewProvider {
 	static var previews: some View {
-		FloatingButton(showTradeMenu: .constant(false), viewState: .constant(.zero))
+		FloatingButton(showTradeMenu: .constant(false), viewState: .constant(.zero), ticker: .constant("ENPH"), name: .constant("Enphse Energy Inc."))
 			
 	}
 }

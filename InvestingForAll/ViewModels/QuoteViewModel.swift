@@ -25,8 +25,6 @@ final class QuoteViewModel: ObservableObject {
 	
 	private func updateValues(symbol: String, asset: FetchedResults<Portfolio>.Element) {
 		
-//		print(self.portfolioWOCash)
-		
 		let lp = self.results?.latestPrice ?? 0
 		let shares = asset.shares
 		
@@ -44,7 +42,7 @@ final class QuoteViewModel: ObservableObject {
 		self.cancellable =
 			self.networkSerivice
 				.getQuote(symbol: symbol, sandbox: sandbox)
-				.receive(on: RunLoop.main)
+				.receive(on: DispatchQueue.main)
 				.catch { _ in Just(self.results) }
 				//				.assign(to: \.results, on: self)
 				.sink(receiveCompletion: { completion in
