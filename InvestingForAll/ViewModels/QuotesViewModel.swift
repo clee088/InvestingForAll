@@ -11,7 +11,7 @@ import Combine
 
 final class QuoteBatchViewModel: ObservableObject {
 	
-	private lazy var networkSerivice: NetworkService = NetworkService()
+	private lazy var networkService: NetworkService = NetworkService()
 	private var cancellable: AnyCancellable?
 	
 	@Published var results: QuoteBatch? = nil
@@ -25,27 +25,8 @@ final class QuoteBatchViewModel: ObservableObject {
 	
 	func getData(symbol: String, sandbox: Bool) {
 		
-//		URLSession
-//			.shared
-//			.dataTaskPublisher(for: url)
-//			.map { $0.data }
-//			.decode(type: QuoteBatch?.self, decoder: JSONDecoder())
-//			.eraseToAnyPublisher()
-//			.receive(on: DispatchQueue.main)
-//			.sink(receiveCompletion: { completion in
-//
-//				self.dataIsLoaded = true
-//				print("Done with \(symbol)")
-//
-//			}, receiveValue: {result in
-//
-//				self.results = result
-//
-//			})
-//			.store(in: &cancellable)
-		
 		self.cancellable =
-			self.networkSerivice
+			self.networkService
 				.getBatchQuotes(symbol: symbol, sandbox: sandbox)
 				.receive(on: DispatchQueue.main)
 				.catch { _ in Just(self.results) }
@@ -67,6 +48,25 @@ final class QuoteBatchViewModel: ObservableObject {
 					self.results = result
 					
 				})
+		
+		//		URLSession
+		//			.shared
+		//			.dataTaskPublisher(for: url)
+		//			.map { $0.data }
+		//			.decode(type: QuoteBatch?.self, decoder: JSONDecoder())
+		//			.eraseToAnyPublisher()
+		//			.receive(on: DispatchQueue.main)
+		//			.sink(receiveCompletion: { completion in
+		//
+		//				self.dataIsLoaded = true
+		//				print("Done with \(symbol)")
+		//
+		//			}, receiveValue: {result in
+		//
+		//				self.results = result
+		//
+		//			})
+		//			.store(in: &cancellable)
 		
 	}
 }

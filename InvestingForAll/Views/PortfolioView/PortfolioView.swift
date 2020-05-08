@@ -12,7 +12,9 @@ struct PortfolioView: View {
 	
 	//	@ObservedObject private var userBalance: UserBalance = UserBalance()
 	
-	@FetchRequest(entity: Portfolio.entity(), sortDescriptors: []) var portfolio: FetchedResults<Portfolio>
+	@FetchRequest(entity: Portfolio.entity(), sortDescriptors: [NSSortDescriptor(keyPath: \Portfolio.currentValue, ascending: false)]) var portfolio: FetchedResults<Portfolio>
+	
+	@FetchRequest(entity: OrderHistory.entity(), sortDescriptors: [NSSortDescriptor(keyPath: \OrderHistory.date, ascending: false)]) var orderHistory: FetchedResults<OrderHistory>
 	
 	@FetchRequest(entity: Portfolio.entity(), sortDescriptors: [], predicate: NSPredicate(format: "name == %@", "Cash")) var cash: FetchedResults<Portfolio>
 	
@@ -22,9 +24,11 @@ struct PortfolioView: View {
 	
 	//	@ObservedObject var quote: QuoteBatchViewModel = QuoteBatchViewModel()
 	
-	@State private var selectedIndex: Int? = nil
+	@State private var selectedIndex: Int? = 0
 	
-	@State private var isSelecting: Bool = false
+	@State private var isSelecting: Bool = true
+	
+	@State var viewIndex: Int = 0
 	
 	var geometry: GeometryProxy
 	
@@ -40,6 +44,17 @@ struct PortfolioView: View {
 		
 	}
 	
+	private func createRowView(asset: FetchedResults<Portfolio>.Element) -> AnyView {
+		
+		switch asset.name == "Cash" {
+		case true:
+			return AnyView(EmptyView())
+		default:
+			return AnyView(PortfolioRow(asset: asset, geometry: self.geometry))
+		}
+		
+	}
+	
 	var body: some View {
 		
 		let accValue: Double = self.portfolio.map( { $0.currentValue } ).reduce(0, +)
@@ -47,7 +62,7 @@ struct PortfolioView: View {
 		let percent: Double = (accValue-1000)/1000 * 100
 		
 		return GeometryReader { geometry in
-			VStack {
+			VStack(alignment: .leading) {
 				
 				HStack {
 					
@@ -72,37 +87,30 @@ struct PortfolioView: View {
 						}
 						
 						ZStack {
-							ForEach(0..<self.portfolio.count, id: \.self) { index in
+							
+							ForEach(self.portfolio, id: \.id) { asset in
 								
-								ZStack {
-									
-//									self.createDonutSlice(geometry: geometry, index: index, color: self.convertColor(data: self.portfolio[index].color ?? Data()))
-									DonutSliceView(geometry: geometry, portfolio: self.portfolio, index: index, color: self.convertColor(data: self.portfolio[index].color ?? Data()), selectedIndex: self.$selectedIndex, isSelecting: self.$isSelecting)
-										.frame(width: geometry.size.width * 0.4, height: geometry.size.width * 0.4, alignment: .center)
-										.onTapGesture {
+								DonutSliceView(geometry: geometry, portfolio: self.portfolio, index: self.portfolio.firstIndex(of: asset) ?? 0, color: self.convertColor(data: asset.color ?? Data()), selectedIndex: self.$selectedIndex, isSelecting: self.$isSelecting, values: self.portfolio.map({$0.currentValue / accValue}))
+									.frame(width: geometry.size.width * 0.4, height: geometry.size.width * 0.4, alignment: .center)
+									.onTapGesture {
+										
+										if self.isSelecting && self.selectedIndex == self.portfolio.firstIndex(of: asset) ?? 0 {
+											self.selectedIndex = nil
+											self.isSelecting.toggle()
+										}
 											
-											if self.isSelecting && self.selectedIndex == index {
-												self.selectedIndex = nil
+										else {
+											self.selectedIndex = self.portfolio.firstIndex(of: asset) ?? 0
+											
+											if !self.isSelecting {
 												self.isSelecting.toggle()
 											}
 											
-//											if self.isSelecting && self.selectedIndex != index {
-//												self.selectedIndex = index
-//											}
-												
-											else {
-												self.selectedIndex = index
-												
-												if !self.isSelecting {
-													self.isSelecting.toggle()
-												}
-												
-											}
-									}
-									
+										}
 								}
 								
 							}
+							
 						}
 						.frame(width: geometry.size.width * 0.5, height: geometry.size.width * 0.5)
 						.rotationEffect(.radians(-.pi / 2))
@@ -123,12 +131,12 @@ struct PortfolioView: View {
 						
 						HStack {
 							
-							Image(systemName: percent > 0 ? "chevron.up.circle" : "chevron.down.circle")
+							Image(systemName: percent > 0 ? "arrowtriangle.up.circle" : "arrowtriangle.down.circle")
 								.imageScale(.large)
 								.aspectRatio(contentMode: .fit)
 								.foregroundColor(percent > 0 ? Color.green : Color.red)
 							
-							Text("\(String(format: "%.2f", accValue-1000)) (\(String(format: "%.2f", percent))%)")
+							Text("\(String(format: "%.2f", accValue-1000)) (\(percent > 0 ? "+" : "")\(String(format: "%.2f", percent))%)")
 								.font(.headline)
 								.fontWeight(.light)
 								.foregroundColor(percent > 0 ? Color.green : Color.red)
@@ -138,10 +146,9 @@ struct PortfolioView: View {
 						Spacer()
 					}
 					.padding()
-					.background(Color("Card Background"))
+					.background(Color("Account Value Background"))
 					.mask(AccountValueShape(cornerRadius: 20, style: .circular))
-					.shadow(color: Color("Card Background"), radius: 8)
-//				.cornerRadius(2, co)
+					.shadow(color: Color("Account Value Background"), radius: 8)
 					
 				}
 				.padding(.bottom)
@@ -149,51 +156,87 @@ struct PortfolioView: View {
 				
 				Divider()
 				
-				HStack {
-					
-					Spacer(minLength: geometry.size.width * 0.02)
-					
-					Text("Symbol")
-						.font(.subheadline)
-						.fontWeight(.light)
-						.frame(maxWidth: geometry.size.width * 0.3, alignment: .leading)
-					
-					Text("Cost Per Share/Total Cost")
-						.font(.subheadline)
-						.fontWeight(.light)
-						.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
-					
-					Text("Last Price/Current Value")
-						.font(.subheadline)
-						.fontWeight(.light)
-						.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
-					
-					Text("P/L")
-						.font(.subheadline)
-						.fontWeight(.light)
-						.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
-					
-				}
-				.padding(.horizontal)
+				ContentSelectorView(geometry: geometry, selectionIndex: self.$viewIndex)
 				
-				ScrollView(.vertical) {
-					VStack(alignment: .leading) {
-						ForEach(self.portfolio.dropFirst(), id: \.id) { object in
-							
-							PortfolioRow(asset: object, geometry: geometry)
-								.frame(maxHeight: geometry.size.height * 0.2)
-							
+				if self.viewIndex == 0 {
+					if self.portfolio.count == 1 && self.portfolio.first?.name == "Cash" {
+						Spacer()
+						HStack {
+							Spacer()
+							Text("Your Portfolio is Empty!")
+								.font(.headline)
+								.fontWeight(.semibold)
+							Spacer()
 						}
 					}
-					.frame(width: geometry.size.width * 0.9, alignment: .center)
+					
+					else {
+						HStack {
+							
+							Spacer(minLength: geometry.size.width * 0.02)
+							
+							Text("Symbol")
+								.font(.subheadline)
+								.fontWeight(.light)
+								.frame(maxWidth: geometry.size.width * 0.3, alignment: .leading)
+							
+							Text("Cost Per Share/Total Cost")
+								.font(.subheadline)
+								.fontWeight(.light)
+								.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
+							
+							Text("Last Price/Current Value")
+								.font(.subheadline)
+								.fontWeight(.light)
+								.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
+							
+							Text("P/L")
+								.font(.subheadline)
+								.fontWeight(.light)
+								.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
+							
+						}
+						.padding(.horizontal)
+						
+						ScrollView(.vertical) {
+							VStack(alignment: .leading) {
+								ForEach(self.portfolio, id: \.id) { object in
+									
+									self.createRowView(asset: object)
+									
+								}
+							}
+							.frame(width: geometry.size.width * 0.95, alignment: .center)
+						}
+					}
 				}
-				.background(Color("Card Background"))
-				.clipShape(RoundedRectangle(cornerRadius: 20))
 				
-				Spacer(minLength: geometry.size.height * 0.1)
+				if self.viewIndex == 1 {
+					
+					if self.orderHistory.isEmpty {
+						Spacer()
+						HStack {
+							Spacer()
+							Text("You Haven't Made Any Orders!")
+								.font(.headline)
+								.fontWeight(.semibold)
+							Spacer()
+						}
+					}
+					else {
+						ScrollView(.vertical) {
+							ForEach(self.orderHistory, id: \.date) { order in
+								OrderHistoryRow(geometry: geometry, order: order)
+							}
+						}
+					}
+					
+				}
+				
+				Spacer()
 				
 			}
-			.padding(.vertical)
+			.padding(.top)
 		}
 		
 	}

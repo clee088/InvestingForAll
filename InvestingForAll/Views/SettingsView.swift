@@ -15,8 +15,11 @@ struct SettingsView: View {
 	@Environment(\.managedObjectContext) var moc
 	
 	@EnvironmentObject var developer: DeveloperModel
+	@EnvironmentObject var dateModel: DateModel
 	
 	@FetchRequest(entity: Portfolio.entity(), sortDescriptors: []) var portfolio: FetchedResults<Portfolio>
+	
+	@FetchRequest(entity: OrderHistory.entity(), sortDescriptors: []) var orderHistory: FetchedResults<OrderHistory>
 	
 	private func resetCoreData() {
 		
@@ -24,6 +27,10 @@ struct SettingsView: View {
 			
 			self.moc.delete(object)
 			
+		}
+		
+		for object in self.orderHistory {
+			self.moc.delete(object)
 		}
 		
 		let portfolio = Portfolio(context: self.moc)
@@ -44,7 +51,10 @@ struct SettingsView: View {
 	
     var body: some View {
 		GeometryReader { geometry in
-			VStack {
+			VStack(alignment: .leading) {
+				
+				Text("\(self.dateModel.currentDate)")
+				
 				Toggle(isOn: self.$developer.sandboxMode) {
 					Text("Sandbox Mode")
 				}
@@ -80,5 +90,6 @@ struct SettingsView_Previews: PreviewProvider {
 			.environment(\.colorScheme, .light)
 			.environmentObject(DeveloperModel())
 			.environment(\.managedObjectContext, context)
+			.environmentObject(DateModel())
     }
 }

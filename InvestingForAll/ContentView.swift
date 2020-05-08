@@ -16,7 +16,7 @@ struct ContentView: View {
 	
 	@Environment(\.managedObjectContext) var moc
 	
-	@State var index: Int = 0
+	@State var index: Int = 3
 	
 	@State var showSearch: Bool = false
 	
@@ -25,6 +25,10 @@ struct ContentView: View {
 	@State private var response: Double = 0.3
 	@State private var dampingFraction: Double = 0.7
 	@State private var blendDuration: Double = 0.3
+	
+//	let date = Date().
+	
+//	let timer = Timer(fireAt: <#T##Date#>, interval: <#T##TimeInterval#>, target: <#T##Any#>, selector: <#T##Selector#>, userInfo: <#T##Any?#>, repeats: <#T##Bool#>)
 	
 	var body: some View {
 		NavigationView {
@@ -127,7 +131,7 @@ struct ContentView: View {
 								
 								if self.index == 2 {
 //									StockView()
-									EmptyView()
+									ChartView(geometry: geometry)
 								}
 								
 								if self.index == 3 {
@@ -136,6 +140,8 @@ struct ContentView: View {
 									
 								if self.index == 4 {
 									SettingsView()
+										.environmentObject(self.developer)
+										.environmentObject(DateModel())
 								}
 									
 								else {

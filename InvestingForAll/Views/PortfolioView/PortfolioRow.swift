@@ -18,12 +18,14 @@ struct PortfolioRow: View {
 	
 	@Environment(\.managedObjectContext) var moc
 	
+	@EnvironmentObject var developer: DeveloperModel
+	
 	private func updateValues() {
 		
 		switch self.asset.symbol != "Cash" {
 		case true:
 			
-			self.quote.getData(symbol: self.asset.symbol ?? "", sandbox: true, asset: asset)
+			self.quote.getData(symbol: self.asset.symbol ?? "", sandbox: self.developer.sandboxMode, asset: asset)
 			
 		default:
 			self.asset.currentValue = self.asset.shares
@@ -41,6 +43,8 @@ struct PortfolioRow: View {
 		
 		return Text(String(format: "%.2f", difference))
 			.foregroundColor(difference > 0 ? Color.green : Color.red)
+			.font(.headline)
+			.fontWeight(.semibold)
 		
 	}
 	
@@ -53,6 +57,8 @@ struct PortfolioRow: View {
 		
 		return Text("\(String(format: "%.2f", (difference/initial)*100))%")
 			.foregroundColor(difference > 0 ? Color.green : Color.red)
+			.font(.headline)
+			.fontWeight(.semibold)
 		
 	}
 	
@@ -76,7 +82,7 @@ struct PortfolioRow: View {
 				
 				RoundedRectangle(cornerRadius: 5)
 					.fill(self.convertColor(data: self.asset.color ?? Data()))
-					.frame(width: geometry.size.width * 0.02)
+					.frame(width: geometry.size.width * 0.025)
 				
 				VStack(alignment: .leading) {
 					
@@ -85,8 +91,8 @@ struct PortfolioRow: View {
 						.fontWeight(.semibold)
 					
 					Text(String(self.asset.name ?? "Unknown"))
-						.font(.headline)
-						.fontWeight(.regular)
+						.font(.subheadline)
+						.fontWeight(.light)
 					
 				}
 				.frame(maxWidth: geometry.size.width * 0.3, alignment: .leading)
@@ -97,24 +103,24 @@ struct PortfolioRow: View {
 					
 					Text(String(format: "%.2f", self.asset.shares))
 						.font(.headline)
-						.fontWeight(.regular)
+						.fontWeight(.medium)
 					
-					Text(String(format: "%.2f", self.asset.valuePurchased))
-						.font(.headline)
-						.fontWeight(.regular)
+//					Text(String(format: "%.2f", self.asset.valuePurchased))
+//						.font(.headline)
+//						.fontWeight(.regular)
 					
 				}
 				.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
 				
 				VStack(alignment: .leading) {
 					
-					Text(String(format: "%.2f", self.asset.currentPrice))
+					Text("$\(String(format: "%.2f", self.asset.currentPrice))")
 						.font(.headline)
-						.fontWeight(.regular)
+						.fontWeight(.medium)
 					
-					Text(String(format: "%.2f", self.asset.currentValue))
-						.font(.headline)
-						.fontWeight(.regular)
+//					Text(String(format: "%.2f", self.asset.currentValue))
+//						.font(.headline)
+//						.fontWeight(.regular)
 					
 				}
 				.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
@@ -127,12 +133,22 @@ struct PortfolioRow: View {
 					
 				}
 				.frame(maxWidth: geometry.size.width * 0.2, alignment: .leading)
+					
+				Image(systemName: self.asset.currentValue - self.asset.valuePurchased > 0 ? "arrowtriangle.up.circle" : "arrowtriangle.down.circle")
+					.imageScale(.large)
+					.aspectRatio(contentMode: .fit)
+					.foregroundColor(self.asset.currentValue - self.asset.valuePurchased > 0 ? Color.green : Color.red)
 				
-//				Spacer()
 			}
 			.padding([.vertical, .trailing])
 			
 		}
+		.background(Color("Card Background"))
+		.clipShape(RoundedRectangle(cornerRadius: 20))
+		.frame(idealHeight: self.geometry.size.height * 0.12)
+		.padding(.leading)
+		.shadow(color: Color("Card Background"), radius: 5)
+		.clipped()
 		.onAppear() {
 			self.updateValues()
 		}

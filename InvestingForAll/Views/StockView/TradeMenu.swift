@@ -42,7 +42,7 @@ struct TradeMenu: View {
 	
 	@Binding var viewState: CGSize
 	
-	@FetchRequest(entity: Portfolio.entity(), sortDescriptors: []) var portfolio: FetchedResults<Portfolio>
+//	@FetchRequest(entity: Portfolio.entity(), sortDescriptors: []) var portfolio: FetchedResults<Portfolio>
 	
 	@FetchRequest(entity: Portfolio.entity(), sortDescriptors: [], predicate: NSPredicate(format: "name == %@", "Cash")) var cash: FetchedResults<Portfolio>
 	
@@ -111,23 +111,44 @@ struct TradeMenu: View {
 		case true:
 			//Execute Order
 			
-			let portfolio = Portfolio(context: self.moc)
+//			let portfolio = Portfolio(context: self.moc)
+			
+			let orderHistory = OrderHistory(context: self.moc)
+			
+			var color = Data()
+			try? color = NSKeyedArchiver.archivedData(withRootObject: self.developer.sandboxMode ? UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1) : UIImage(data: self.imageData ?? Data())?.averageColor ?? UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1), requiringSecureCoding: false)
+			
+			let order = Order(symbol: self.symbol, action: self.buySide ? .buy : .sell, position: .long, type: .marketOrder, shares: shares, id: UUID(), color: color, name: self.companyName, date: Date())
 			
 			let purchasePrice: Double = self.quote.quoteResult?.latestPrice ?? 0
 			
-			portfolio.id = UUID()
-			portfolio.name = self.companyName
-			portfolio.symbol = self.symbol
-			portfolio.sharePricePurchased = purchasePrice
-			portfolio.shares = shares
-			portfolio.valuePurchased = portfolio.sharePricePurchased * portfolio.shares
+			orderHistory.symbol = order.symbol
+			orderHistory.action = order.action.string
+			orderHistory.position = order.position.string
+			orderHistory.type = order.type.string
+			orderHistory.shares = order.shares
+			orderHistory.id = order.id
+			orderHistory.color = order.color
+			orderHistory.name = order.name
+			orderHistory.date = order.date
+			orderHistory.status = order.status.string
 			
-			try? portfolio.color = NSKeyedArchiver.archivedData(withRootObject: self.developer.sandboxMode ? UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1) : UIImage(data: self.imageData ?? Data())?.averageColor ?? UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1), requiringSecureCoding: false)
-			
-			self.cash.first?.shares -= portfolio.valuePurchased
-			self.cash.first?.valuePurchased = self.cash.first?.shares ?? 0
-			self.cash.first?.currentValue = self.cash.first?.valuePurchased ?? 0
-			self.cash.first?.currentPrice = self.cash.first?.currentValue ?? 0
+//			portfolio.id = UUID()
+//			portfolio.name = self.companyName
+//			portfolio.symbol = self.symbol
+//			portfolio.sharePricePurchased = purchasePrice
+//			portfolio.shares = shares
+//			portfolio.valuePurchased = portfolio.sharePricePurchased * portfolio.shares
+//
+//			portfolio.currentValue = portfolio.valuePurchased
+//			portfolio.currentPrice = purchasePrice
+//
+//			try? portfolio.color = NSKeyedArchiver.archivedData(withRootObject: self.developer.sandboxMode ? UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1) : UIImage(data: self.imageData ?? Data())?.averageColor ?? UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1), requiringSecureCoding: false)
+//
+//			self.cash.first?.shares -= portfolio.valuePurchased
+//			self.cash.first?.valuePurchased = self.cash.first?.shares ?? 0
+//			self.cash.first?.currentValue = self.cash.first?.valuePurchased ?? 0
+//			self.cash.first?.currentPrice = self.cash.first?.currentValue ?? 0
 			
 			try? self.moc.save()
 			
