@@ -17,9 +17,9 @@ final class NetworkService {
 
 		switch sandbox {
 		case true:
-			jsonUrlString = "https://sandbox.iexapis.com/stable/stock/market/batch?symbols=\(symbol)&types=quote&token=Tpk_40e51a7eb9b442aa87834a5071daed31"
+			jsonUrlString = "https://sandbox.iexapis.com/stable/stock/market/batch?symbols=\(symbol)&types=quote&token="
 		case false:
-			jsonUrlString = "https://cloud.iexapis.com/stable/stock/market/batch?symbols=\(symbol)&types=quote&token=pk_ced9c1fec27547ca92d6333afe3adf60"
+			jsonUrlString = "https://cloud.iexapis.com/stable/stock/market/batch?symbols=\(symbol)&types=quote&token="
 		}
 		
 		guard let url = URL(string: jsonUrlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "") else {
@@ -40,9 +40,9 @@ final class NetworkService {
 		
 		switch sandbox {
 		case true:
-			jsonUrlString = "https://sandbox.iexapis.com/stable/stock/\(symbol)/quote?token=Tpk_40e51a7eb9b442aa87834a5071daed31"
+			jsonUrlString = "https://sandbox.iexapis.com/stable/stock/\(symbol)/quote?token="
 		case false:
-			jsonUrlString = "https://cloud.iexapis.com/stable/stock/\(symbol)/quote?token=pk_ced9c1fec27547ca92d6333afe3adf60"
+			jsonUrlString = "https://cloud.iexapis.com/stable/stock/\(symbol)/quote?token="
 		}
 		
 		guard let url = URL(string: jsonUrlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "") else {
@@ -67,18 +67,18 @@ final class NetworkService {
 			
 			switch sandbox {
 			case true:
-				jsonUrlString = "https://sandbox.iexapis.com/stable/stock/\(symbol)/chart/\(date)?token=Tpk_40e51a7eb9b442aa87834a5071daed31"
+				jsonUrlString = "https://sandbox.iexapis.com/stable/stock/\(symbol)/chart/\(date)?token="
 			case false:
-				jsonUrlString = "https://cloud.iexapis.com/stable/stock/\(symbol)/chart/\(date)?token=pk_ced9c1fec27547ca92d6333afe3adf60"
+				jsonUrlString = "https://cloud.iexapis.com/stable/stock/\(symbol)/chart/\(date)?token="
 			}
 			
 		case false:
 			
 			switch sandbox {
 			case true:
-				jsonUrlString = "https://sandbox.iexapis.com/stable/stock/\(symbol)/chart/\(range.rawValue)?token=Tpk_40e51a7eb9b442aa87834a5071daed31"
+				jsonUrlString = "https://sandbox.iexapis.com/stable/stock/\(symbol)/chart/\(range.rawValue)?token="
 			case false:
-				jsonUrlString = "https://cloud.iexapis.com/stable/stock/\(symbol)/chart/\(range.rawValue)?token=pk_ced9c1fec27547ca92d6333afe3adf60"
+				jsonUrlString = "https://cloud.iexapis.com/stable/stock/\(symbol)/chart/\(range.rawValue)?token="
 			}
 			
 		}
